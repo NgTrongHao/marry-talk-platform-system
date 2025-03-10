@@ -36,4 +36,28 @@ export interface ITherapistManagementService {
   ): Promise<WorkingHoursInfoDto[]>;
 
   getTherapistWorkingHours(therapistId: string): Promise<WorkingHoursInfoDto[]>;
+
+  getAllApprovedTherapists(request: {
+    page: number;
+    limit: number;
+    therapyId?: string;
+  }): Promise<{
+    therapists: TherapistInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }>;
+
+  getUnapprovedTherapists(param: {
+    page: number;
+    limit: number;
+    therapyId: string | undefined;
+  }): Promise<{
+    therapists: TherapistInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }>;
 }

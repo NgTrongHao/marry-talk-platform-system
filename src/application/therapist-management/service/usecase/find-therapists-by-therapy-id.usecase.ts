@@ -23,13 +23,14 @@ export class FindTherapistsByTherapyIdUsecase
     private therapistRepository: TherapistRepository,
   ) {}
 
-  execute(
+  async execute(
     command: FindTherapistsByTherapyIdUsecaseCommand,
   ): Promise<{ therapist: Therapist; therapistTypes: TherapistType[] }[]> {
-    return this.therapistRepository.findTherapistsByTherapyId(
+    const results = await this.therapistRepository.findTherapistsByTherapyId(
       command.therapyId,
       command.skip,
       command.take,
     );
+    return results.filter((result) => result.therapist.roleEnabled);
   }
 }

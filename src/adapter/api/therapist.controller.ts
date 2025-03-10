@@ -32,6 +32,62 @@ export class TherapistController {
     private therapistManagementService: ITherapistManagementService,
   ) {}
 
+  @Get('get-all-approved-therapists')
+  @ApiOperation({
+    summary: 'Get All Approved Therapists REST API',
+    description:
+      'Get All Approved Therapists REST API is used to get all approved therapists.',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'therapyId', required: false, type: String })
+  @ApiResponseProperty({
+    type: BaseResponseDto<{
+      therapists: TherapistInfoResponseDto[];
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    }>,
+  })
+  async getAllApprovedTherapists(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('therapyId') therapyId?: string,
+  ) {
+    return await this.therapistManagementService
+      .getAllApprovedTherapists({ page, limit, therapyId })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('get-unapproved-therapists')
+  @ApiOperation({
+    summary: 'Get Unapproved Therapists REST API',
+    description:
+      'Get Unapproved Therapists REST API is used to get all unapproved therapists.',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'therapyId', required: false, type: String })
+  @ApiResponseProperty({
+    type: BaseResponseDto<{
+      therapists: TherapistInfoResponseDto[];
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    }>,
+  })
+  async getUnapprovedTherapists(
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('therapyId') therapyId?: string,
+  ) {
+    return await this.therapistManagementService
+      .getUnapprovedTherapists({ page, limit, therapyId })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
   @Patch('approve-therapist-type/:therapistId/therapy/:therapyId')
   @ApiOperation({
     summary: 'Approve/Reject Therapist Type REST API',
@@ -65,11 +121,11 @@ export class TherapistController {
       .then(() => new BaseResponseDto(200, 'Therapist approved successfully'));
   }
 
-  @Get('find-therapists-with-therapy/:therapyId')
+  @Get('find-qualified-therapists-with-therapy/:therapyId')
   @ApiOperation({
     summary: 'Find Therapists with Therapy REST API',
     description:
-      'Find Therapists with Therapy REST API is used to find therapists with therapy.',
+      'Find Therapists with Therapy REST API is used to find qualified therapists with therapy.',
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })

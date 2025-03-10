@@ -76,6 +76,7 @@ export class PrismaTherapistRepository implements TherapistRepository {
         therapistType: {
           some: {
             therapy_id: therapyId,
+            enabled: true,
           },
         },
       },
@@ -115,7 +116,7 @@ export class PrismaTherapistRepository implements TherapistRepository {
 
   countTherapistHasTherapyId(therapyId: string): Promise<number> {
     return this.prisma.therapistType.count({
-      where: { therapy_id: therapyId },
+      where: { therapy_id: therapyId, enabled: true },
     });
   }
 
@@ -156,5 +157,107 @@ export class PrismaTherapistRepository implements TherapistRepository {
         endTime: workTime.endTime,
       }),
     );
+  }
+
+  async findApprovedTherapists(
+    therapyId: string | undefined,
+    skip: number,
+    take: number,
+  ): Promise<
+    {
+      therapist: Therapist;
+      therapistTypes: TherapistType[];
+    }[]
+  > {
+    const therapists = await this.prisma.user.findMany({
+      where: {
+        role: 'THERAPIST',
+        role_enabled: true,
+        therapistType: {
+          some: {
+            therapy_id: therapyId,
+          },
+        },
+      },
+      skip,
+      take,
+      include: { therapistType: true },
+    });
+    return therapists.map((therapist) => ({
+      therapist: PrismaTherapistMapper.toDomain(therapist),
+      therapistTypes: therapist.therapistType.map((type) =>
+        TherapistType.build({
+          therapistId: type.therapist_id,
+          therapyCategoryId: type.therapy_id,
+          enable: type.enabled,
+        }),
+      ),
+    }));
+  }
+
+  countApprovedTherapist(therapyId: string | undefined): Promise<number> {
+    return this.prisma.user.count({
+      where: {
+        role: 'THERAPIST',
+        role_enabled: true,
+        therapistType: {
+          some: {
+            therapy_id: therapyId,
+          },
+        },
+      },
+    });
+  }
+
+  countUnapprovedTherapist(therapyId: string | undefined): Promise<number> {
+    return this.prisma.user.count({
+      where: {
+        role: 'THERAPIST',
+        role_enabled: false,
+        therapistType: {
+          some: {
+            therapy_id: therapyId,
+          },
+        },
+      },
+    });
+  }
+
+  async findUnapprovedTherapists(
+    therapyId: string | undefined,
+    skip: number,
+    take: number,
+  ): Promise<
+    {
+      therapist: Therapist;
+      therapistTypes: TherapistType[];
+    }[]
+  > {
+    const therapists = await this.prisma.user.findMany({
+      where: {
+        role: 'THERAPIST',
+        role_enabled: false,
+        therapistType: {
+          some: {
+            therapy_id: therapyId,
+          },
+        },
+      },
+      skip,
+      take,
+      include: {
+        therapistType: true,
+      },
+    });
+    return therapists.map((therapist) => ({
+      therapist: PrismaTherapistMapper.toDomain(therapist),
+      therapistTypes: therapist.therapistType.map((type) =>
+        TherapistType.build({
+          therapistId: type.therapist_id,
+          therapyCategoryId: type.therapy_id,
+          enable: type.enabled,
+        }),
+      ),
+    }));
   }
 }

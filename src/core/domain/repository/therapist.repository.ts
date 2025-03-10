@@ -27,4 +27,25 @@ export interface TherapistRepository {
   ): Promise<void>;
 
   getTherapistWorkSchedule(therapistId: string): Promise<WorkingHours[]>;
+
+  findApprovedTherapists(
+    therapyId: string | undefined,
+    skip: number,
+    take: number,
+  ): Promise<{ therapist: Therapist; therapistTypes: TherapistType[] }[]>;
+
+  countApprovedTherapist(therapyId: string | undefined): Promise<number>;
+
+  findUnapprovedTherapists(
+    therapyId: string | undefined,
+    skip: number,
+    take: number,
+  ): Promise<
+    {
+      therapist: Therapist;
+      therapistTypes: TherapistType[];
+    }[]
+  >;
+
+  countUnapprovedTherapist(therapyId: string | undefined): Promise<number>;
 }

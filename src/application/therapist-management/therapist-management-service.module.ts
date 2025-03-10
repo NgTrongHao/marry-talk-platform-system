@@ -9,6 +9,10 @@ import { CountTherapistHasTherapyIdUsecase } from './service/usecase/count-thera
 import { FindTherapistsByTherapyIdUsecase } from './service/usecase/find-therapists-by-therapy-id.usecase';
 import { PutTherapistWorkScheduleUsecase } from './service/usecase/put-therapist-work-schedule.usecase';
 import { GetTherapistWorkScheduleUsecase } from './service/usecase/get-therapist-work-schedule.usecase';
+import { FindApprovedTherapistUsecase } from './service/usecase/find-approved-therapist.usecase';
+import { CountApprovedTherapistUsecase } from './service/usecase/count-approved-therapist.usecase';
+import { FindUnapprovedTherapistUsecase } from './service/usecase/find-unapproved-therapist.usecase';
+import { CountUnapprovedTherapistUsecase } from './service/usecase/count-unapproved-therapist.usecase';
 
 const useCases = [
   ApproveTherapistTypeUsecase,
@@ -17,6 +21,10 @@ const useCases = [
   FindTherapistsByTherapyIdUsecase,
   PutTherapistWorkScheduleUsecase,
   GetTherapistWorkScheduleUsecase,
+  FindApprovedTherapistUsecase,
+  CountApprovedTherapistUsecase,
+  FindUnapprovedTherapistUsecase,
+  CountUnapprovedTherapistUsecase,
 ];
 
 @Module({
