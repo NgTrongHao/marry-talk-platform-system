@@ -1,0 +1,124 @@
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponseProperty,
+  ApiTags,
+} from '@nestjs/swagger';
+import { BaseResponseDto } from '../dto/base-response.dto';
+import { ITherapistManagementService } from '../../application/therapist-management/therapist-management-service.interface';
+import { TherapistInfoResponseDto } from '../../application/user/service/dto/therapist-info-response.dto';
+import { CurrentUser } from '../../infrastructure/security/decorator/current-user.decorator';
+import { TokenPayload } from '../../application/user/service/token.service';
+import { TherapistScheduleRequest } from '../dto/therapist/therapist-schedule-request.dto';
+import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
+
+@Controller('therapists')
+@ApiTags('Therapist')
+export class TherapistController {
+  constructor(
+    @Inject('ITherapistManagementService')
+    private therapistManagementService: ITherapistManagementService,
+  ) {}
+
+  @Patch('approve-therapist-type/:therapistId/therapy/:therapyId')
+  @ApiOperation({
+    summary: 'Approve/Reject Therapist Type REST API',
+    description:
+      'Approve/Reject Therapist Type REST API is used to approve or reject therapist type.',
+  })
+  async approveTherapyCategory(
+    @Param('therapistId') therapistId: string,
+    @Param('therapyId') therapyId: string,
+    @Query('approve') approve: boolean,
+  ) {
+    return await this.therapistManagementService
+      .approveTherapyCategory({ therapistId, categoryId: therapyId, approve })
+      .then(
+        () => new BaseResponseDto(200, 'Therapist type changed successfully'),
+      );
+  }
+
+  @Patch('approve-therapist-management/:therapistId')
+  @ApiOperation({
+    summary: 'Approve/Reject Therapist REST API',
+    description:
+      'Approve/Reject Therapist REST API is used to approve or reject user to be therapist-management.',
+  })
+  async approveTherapist(
+    @Param('therapistId') therapistId: string,
+    @Query('approve') approve: boolean,
+  ) {
+    return await this.therapistManagementService
+      .approveTherapist({ therapistId, approve })
+      .then(() => new BaseResponseDto(200, 'Therapist approved successfully'));
+  }
+
+  @Get('find-therapists-with-therapy/:therapyId')
+  @ApiOperation({
+    summary: 'Find Therapists with Therapy REST API',
+    description:
+      'Find Therapists with Therapy REST API is used to find therapists with therapy.',
+  })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponseProperty({
+    type: BaseResponseDto<{
+      therapists: TherapistInfoResponseDto[];
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    }>,
+  })
+  async findTherapistWithTherapies(
+    @Param('therapyId') therapyId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return await this.therapistManagementService
+      .findTherapistWithTherapies({ therapyCategoryId: therapyId, page, limit })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Put('me/put-therapist-working-hours')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Put Therapist Working Hours REST API',
+    description:
+      'Put Therapist Working Hours REST API is used to put working hours for therapist.',
+  })
+  async putTherapistWorkingHours(
+    @CurrentUser() info: TokenPayload,
+    @Body() request: TherapistScheduleRequest,
+  ) {
+    console.info('Schedule Request:', request);
+    return await this.therapistManagementService
+      .putTherapistWorkingHours(info.userId, request.workingHours)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('working-hours/:therapistId')
+  @ApiOperation({
+    summary: 'Get Therapist Working Hours REST API',
+    description:
+      'Get Therapist Working Hours REST API is used to get working hours for therapist.',
+  })
+  async getTherapistWorkingHours(@Param('therapistId') therapistId: string) {
+    return await this.therapistManagementService
+      .getTherapistWorkingHours(therapistId)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+}

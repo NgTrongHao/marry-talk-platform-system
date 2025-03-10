@@ -12,3 +12,395 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  REGISTRAR
+  MEMBER
+  THERAPIST
+  ADMIN
+}
+
+enum ProgressStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TransactionType {
+  PAYMENT // UserEntity pay for booking
+  REFUND // UserEntity request refund
+  WITHDRAW // Therapist withdraw money
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  APPROVED
+  REJECTED
+}
+
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+}
+
+enum QuestionType {
+  SINGLE_CHOICE
+  MULTIPLE_CHOICE
+  TEXT
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum ReportType {
+  PLATFORM_ISSUE
+  SERVICE_ISSUE
+}
+
+model User {
+  user_id                 String    @id @default(uuid())
+  email                   String    @unique
+  username                String    @unique
+  first_name              String
+  last_name               String
+  phone_number            String?
+  avatar_image            String?
+  bio                     String?
+  expert_certificate      String[]
+  professional_experience String?
+  password                String
+  birth_date              DateTime?
+  enable_status           Boolean   @default(true)
+  role                    Role      @default(MEMBER)
+  role_enabled            Boolean   @default(true)
+  created_at              DateTime  @default(now())
+  updated_at              DateTime  @updatedAt
+
+  notification        Notification[]
+  testResult          TestResult[]
+  therapistType       TherapistType[]
+  userBooking         Booking[]             @relation("UserBooking")
+  therapistBooking    Booking[]             @relation("TherapistBooking")
+  therapistSession    Session[]             @relation("TherapistBooking")
+  userSession         Session[]             @relation("UserBooking")
+  sessionNote         SessionNote[]
+  report              Report[]
+  withdrawRequest     WithdrawRequest[]
+  transactionHistory  TransactionHistory?
+  refundRequest       RefundRequest[]
+  unavailableSchedule UnavailableSchedule[]
+  workingSchedule     WorkingSchedule[]
+
+  @@index([email])
+  @@index([user_id])
+}
+
+model Notification {
+  notification_id String           @id @default(uuid())
+  title           String
+  message         String
+  type            NotificationType
+  is_read         Boolean          @default(false)
+  created_at      DateTime         @default(now())
+  receiver_id     String           @map("receiver_id")
+  receiver        User             @relation(fields: [receiver_id], references: [user_id])
+
+  @@index([receiver_id, notification_id])
+}
+
+model Therapy {
+  therapy_id  String  @id @default(uuid())
+  title       String
+  description String
+  enabled     Boolean @default(true)
+
+  therapyTest   TherapyTest[]
+  therapistType TherapistType[]
+}
+
+model TherapistType {
+  therapist_id String
+  therapy_id   String
+  enabled      Boolean @default(false)
+
+  therapist User    @relation(fields: [therapist_id], references: [user_id])
+  therapy   Therapy @relation(fields: [therapy_id], references: [therapy_id])
+
+  therapistService TherapistService[]
+
+  @@id([therapist_id, therapy_id])
+}
+
+model PremaritalTest {
+  test_id     String     @id @default(uuid())
+  test_name   String
+  description String
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  questions   Question[] @relation("PremaritalTestQuestions")
+
+  testResult  TestResult[]
+  therapyTest TherapyTest[]
+
+  @@index([test_id])
+}
+
+model TherapyTest {
+  therapy_id String
+  test_id    String
+
+  therapy Therapy        @relation(fields: [therapy_id], references: [therapy_id])
+  test    PremaritalTest @relation(fields: [test_id], references: [test_id])
+
+  @@id([therapy_id, test_id])
+}
+
+model Question {
+  question_id String       @id @default(uuid())
+  question    String
+  type        QuestionType
+  question_no Int
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+
+  premaritalTest     PremaritalTest @relation("PremaritalTestQuestions", fields: [premarital_test_id], references: [test_id])
+  answer             Answer[]
+  premarital_test_id String
+}
+
+model Answer {
+  answer_id   String   @id @default(uuid())
+  answer      String
+  score       Int
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  question_id String   @map("question_id")
+  question    Question @relation(fields: [question_id], references: [question_id])
+
+  @@index([question_id])
+}
+
+model TestResult {
+  result_id     String         @id @default(uuid())
+  total_score   Decimal
+  created_at    DateTime       @default(now())
+  user_response Json
+  user_id       String         @map("user_id")
+  user          User           @relation(fields: [user_id], references: [user_id])
+  test_id       String         @map("test_id")
+  test          PremaritalTest @relation(fields: [test_id], references: [test_id])
+
+  @@index([result_id])
+  @@index([user_id])
+  @@index([test_id])
+}
+
+model ServicePackage {
+  package_id String @id @default(uuid())
+  title      String
+  sessions   Int
+
+  therapistService TherapistService[]
+
+  booking Booking[]
+}
+
+model TherapistService {
+  therapist_service_id String  @id @default(uuid())
+  price                Decimal
+  currency             String  @default("VND")
+  description          String
+  enabled              Boolean @default(true)
+  therapist_id         String  @map("therapist_id")
+  therapy_id           String  @map("therapy_id")
+  package_id           String  @map("package_id")
+
+  therapistType TherapistType  @relation(fields: [therapist_id, therapy_id], references: [therapist_id, therapy_id])
+  package       ServicePackage @relation(fields: [package_id], references: [package_id])
+
+  @@index([therapist_id])
+  @@index([therapy_id])
+}
+
+model Booking {
+  booking_id   String         @id @default(uuid())
+  therapist_id String
+  user_id      String
+  package_id   String
+  status       ProgressStatus @default(PENDING)
+  created_at   DateTime       @default(now())
+  updated_at   DateTime       @updatedAt
+  expired_at   DateTime
+  rating       Int?
+
+  therapist   User           @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
+  user        User           @relation("UserBooking", fields: [user_id], references: [user_id])
+  package     ServicePackage @relation(fields: [package_id], references: [package_id])
+  session     Session[]
+  transaction Transaction?   @relation(map: "payment")
+
+  @@index([therapist_id])
+  @@index([user_id])
+  @@index([package_id])
+}
+
+model Session {
+  session_id     String         @id @default(uuid())
+  session_number Int
+  status         ProgressStatus @default(PENDING)
+  session_date   DateTime
+  meeting_link   String
+  booking_id     String
+  therapist_id   String
+  user_id        String
+
+  booking     Booking       @relation(fields: [booking_id], references: [booking_id])
+  therapist   User          @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
+  user        User          @relation("UserBooking", fields: [user_id], references: [user_id])
+  sessionNote SessionNote[]
+  report      Report[]
+
+  @@index([booking_id])
+  @@index([therapist_id])
+  @@index([user_id])
+}
+
+model SessionNote {
+  note_id    String   @id @default(uuid())
+  note       String
+  reply_for  String // note_id of the note that this note is replying to
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  session_id String   @map("session_id")
+  created_by String   @map("created_by")
+
+  session Session @relation(fields: [session_id], references: [session_id])
+  user    User    @relation(fields: [created_by], references: [user_id])
+
+  @@index([session_id])
+}
+
+model Report {
+  report_id   String        @id @default(uuid())
+  title       String
+  description String
+  status      RequestStatus @default(PENDING)
+  created_at  DateTime      @default(now())
+  report_by   String        @map("report_by")
+  report_for  String        @map("report_for")
+
+  user          User           @relation(fields: [report_by], references: [user_id])
+  session       Session        @relation(fields: [report_for], references: [session_id])
+  refundRequest RefundRequest? @relation(map: "refundRequest")
+
+  @@index([report_by])
+  @@index([report_for])
+}
+
+model Transaction {
+  transaction_id String            @id @default(uuid())
+  amount         Decimal
+  currency       String            @default("VND")
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  created_at     DateTime          @default(now())
+  updated_at     DateTime          @updatedAt
+  reference_id   String            @unique @map("reference_id")
+
+  payment            Booking?             @relation(fields: [reference_id], references: [booking_id], map: "payment")
+  refundRequest      RefundRequest?       @relation(fields: [reference_id], references: [request_id], map: "refundRequest")
+  withdrawRequest    WithdrawRequest?     @relation(fields: [reference_id], references: [request_id], map: "withdrawRequest")
+  transactionHistory TransactionHistory[]
+}
+
+model TransactionHistory {
+  history_id     String            @id @default(uuid())
+  transaction_id String
+  amount         Decimal
+  currency       String            @default("VND")
+  type           TransactionType
+  old_status     TransactionStatus
+  new_status     TransactionStatus
+  note           String
+  created_at     DateTime          @default(now())
+  changed_by     String            @unique @map("changed_by")
+
+  transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
+  user        User        @relation(fields: [changed_by], references: [user_id])
+}
+
+model WithdrawRequest {
+  request_id   String        @id @default(uuid())
+  amount       Decimal
+  currency     String        @default("VND")
+  status       RequestStatus @default(PENDING)
+  created_at   DateTime      @default(now())
+  updated_at   DateTime      @updatedAt
+  therapist_id String        @map("therapist_id")
+
+  therapist   User         @relation(fields: [therapist_id], references: [user_id])
+  transaction Transaction? @relation(map: "withdrawRequestTransactionId")
+
+  @@index([therapist_id])
+  @@index([status])
+}
+
+model RefundRequest {
+  request_id String        @id @default(uuid())
+  amount     Decimal
+  currency   String        @default("VND")
+  status     RequestStatus @default(PENDING)
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+  user_id    String        @map("user_id") // UserEntity who request refund
+  report_id  String        @unique @map("report_id") // Report that user request refund
+
+  user        User         @relation(fields: [user_id], references: [user_id])
+  report      Report       @relation(fields: [report_id], references: [report_id])
+  transaction Transaction? @relation(map: "refundRequestTransactionId")
+
+  @@index([user_id])
+  @@index([report_id])
+  @@index([status])
+}
+
+model WorkingSchedule {
+  id          String     @id @default(uuid())
+  therapistId String     @map("therapist_id")
+  schedules   WorkTime[]
+
+  therapist User @relation(fields: [therapistId], references: [user_id], onDelete: Cascade)
+}
+
+model WorkTime {
+  id         String          @id @default(uuid())
+  scheduleId String          @map("schedule_id")
+  dayOfWeek  Int // 1 = Monday, ..., 7 = Sunday
+  startTime  String // "09:00"
+  endTime    String // "18:00"
+  schedule   WorkingSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+
+  @@index([scheduleId, dayOfWeek])
+}
+
+model UnavailableSchedule {
+  id          String   @id @default(uuid())
+  therapistId String   @map("therapist_id")
+  date        DateTime
+  startTime   String? // "14:00", null if fullDay = true
+  endTime     String? // "16:00"
+  fullDay     Boolean  @default(false)
+  reason      String?
+
+  therapist User @relation(fields: [therapistId], references: [user_id], onDelete: Cascade)
+
+  @@index([therapistId, date])
+}
