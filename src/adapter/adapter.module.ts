@@ -13,6 +13,8 @@ import { TherapistManagementServiceModule } from '../application/therapist-manag
 import { TherapistController } from './api/therapist.controller';
 import { PreMaritalTestController } from './api/pre-marital-test.controller';
 import { PreMaritalTestServiceModule } from '../application/premarital-test/pre-marital-test-service.module';
+import { ServicePackageManagementServiceModule } from '../application/service-package-management/service-package-management-service.module';
+import { ServicePackageController } from './api/service-package.controller';
 
 @Module({
   imports: [
@@ -22,6 +24,7 @@ import { PreMaritalTestServiceModule } from '../application/premarital-test/pre-
     TherapyManagementServiceModule,
     TherapistManagementServiceModule,
     PreMaritalTestServiceModule,
+    ServicePackageManagementServiceModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [
@@ -31,6 +34,7 @@ import { PreMaritalTestServiceModule } from '../application/premarital-test/pre-
     TherapyController,
     TherapistController,
     PreMaritalTestController,
+    ServicePackageController,
   ],
 })
 export class AdapterModule {}

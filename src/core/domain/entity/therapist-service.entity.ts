@@ -1,4 +1,5 @@
 import { Entity } from '../../base/entity';
+import { ServicePackage } from './service-package.entity';
 
 interface TherapistServiceProps {
   id?: string;
@@ -6,13 +7,20 @@ interface TherapistServiceProps {
   therapyCategoryId: string;
   price: number;
   currency: string;
-  description?: string;
-  packageId?: string;
+  description: string;
+  package: ServicePackage;
 }
 
 export class TherapistService extends Entity<TherapistServiceProps> {
   private constructor(props: TherapistServiceProps) {
     super(props);
+  }
+
+  public static create(props: TherapistServiceProps): TherapistService {
+    return new TherapistService({
+      id: props.id || Entity.generateId(),
+      ...props,
+    });
   }
 
   public static build(props: TherapistServiceProps): TherapistService {
@@ -39,7 +47,23 @@ export class TherapistService extends Entity<TherapistServiceProps> {
     return this.props.currency;
   }
 
-  get description(): string | undefined {
+  get description(): string {
     return this.props.description;
+  }
+
+  get package(): ServicePackage {
+    return this.props.package;
+  }
+
+  set price(price: number) {
+    this.props.price = price;
+  }
+
+  set currency(currency: string) {
+    this.props.currency = currency;
+  }
+
+  set description(description: string) {
+    this.props.description = description;
   }
 }

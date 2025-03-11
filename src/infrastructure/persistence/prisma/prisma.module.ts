@@ -6,6 +6,7 @@ import { PrismaTherapistRepository } from './repository/prisma-therapist.reposit
 import { PrismaTherapyCategoryRepository } from './repository/prisma-therapy-category.repository';
 import { PrismaPreMaritalTestRepository } from './repository/prisma-pre-marital-test.repository';
 import { PrismaQuestionRepository } from './repository/prisma-question.repository';
+import { PrismaServicePackageRepository } from './repository/prisma-service-package.repository';
 
 @Module({
   providers: [
@@ -34,6 +35,10 @@ import { PrismaQuestionRepository } from './repository/prisma-question.repositor
       provide: 'QuestionRepository',
       useClass: PrismaQuestionRepository,
     },
+    {
+      provide: 'ServicePackageRepository',
+      useClass: PrismaServicePackageRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -43,6 +48,7 @@ import { PrismaQuestionRepository } from './repository/prisma-question.repositor
     'TherapyCategoryRepository',
     'PremaritalTestRepository',
     'QuestionRepository',
+    'ServicePackageRepository',
   ],
 })
 export class PrismaModule {}

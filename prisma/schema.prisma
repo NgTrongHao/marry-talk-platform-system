@@ -206,7 +206,7 @@ model TestResult {
 model ServicePackage {
   package_id String @id @default(uuid())
   title      String
-  sessions   Int
+  sessions   Int    @unique
 
   therapistService TherapistService[]
 

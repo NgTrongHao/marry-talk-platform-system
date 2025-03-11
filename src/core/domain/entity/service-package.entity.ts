@@ -15,6 +15,13 @@ export class ServicePackage extends Entity<ServicePackageProps> {
     return new ServicePackage(props);
   }
 
+  public static create(props: ServicePackageProps): ServicePackage {
+    return new ServicePackage({
+      id: props.id || Entity.generateId(),
+      ...props,
+    });
+  }
+
   get id(): string | undefined {
     return this.props.id;
   }
@@ -25,5 +32,13 @@ export class ServicePackage extends Entity<ServicePackageProps> {
 
   get sessionCount(): number {
     return this.props.sessionCount;
+  }
+
+  set name(name: string) {
+    this.props.name = name;
+  }
+
+  set sessionCount(count: number) {
+    this.props.sessionCount = count;
   }
 }

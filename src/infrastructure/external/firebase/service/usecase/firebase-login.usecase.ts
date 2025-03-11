@@ -44,7 +44,7 @@ export class FirebaseLoginUsecase {
       });
       const token = await this.authService.generateAccessToken(user);
 
-      return { token };
+      return { accessToken: token };
     } else if (username) {
       const nameParts = firebaseUser.displayName?.trim().split(' ') || [];
       const firstName = nameParts.slice(0, -1).join(' ') || '';

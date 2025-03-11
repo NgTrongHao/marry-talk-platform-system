@@ -9,6 +9,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -36,6 +37,7 @@ export class FileUploadController {
     }),
   )
   @ApiConsumes('multipart/form-data')
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Upload File REST API',
     description:

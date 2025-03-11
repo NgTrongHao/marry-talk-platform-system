@@ -6,10 +6,10 @@ export class TherapistTypeInfoResponseDto {
   therapyCategory: TherapyInfoResponseDto;
 
   @ApiProperty()
-  enabled: boolean;
+  therapistTypeEnabled: boolean;
 
   constructor(therapyCategory: TherapyInfoResponseDto, enabled: boolean) {
     this.therapyCategory = therapyCategory;
-    this.enabled = enabled;
+    this.therapistTypeEnabled = enabled;
   }
 }

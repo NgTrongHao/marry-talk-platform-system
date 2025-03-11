@@ -13,7 +13,7 @@ export interface LoginUserUseCaseCommand {
 }
 
 export interface LoginUserUseCaseResponse {
-  token: string;
+  accessToken: string;
 }
 
 @Injectable()
@@ -49,7 +49,7 @@ export class LoginUserUsecase
     }
 
     return {
-      token: await this.usecaseHandler.execute(
+      accessToken: await this.usecaseHandler.execute(
         GenerateAccessTokenUsecase,
         user instanceof User ? user : user.user,
       ),
