@@ -13,6 +13,7 @@ import { SetTherapistServicesWithTherapyUsecase } from './usecase/set-therapist-
 import { ITherapyManagementService } from '../../therapy-management/therapy-management-service.interface';
 import { UpdateTherapistServiceUsecase } from './usecase/update-therapist-service.usecase';
 import { GetTherapistServicesUsecase } from './usecase/get-therapist-services.usecase';
+import { GetTherapistServiceByIdUsecase } from './usecase/get-therapist-service-by-id.usecase';
 
 @Injectable()
 export class ServicePackageManagementService
@@ -70,6 +71,7 @@ export class ServicePackageManagementService
         price: number;
         servicePackageId: string;
         currency: string;
+        timeInMinutes: number;
         description: string;
       }[];
     },
@@ -143,5 +145,20 @@ export class ServicePackageManagementService
           }),
         );
       });
+  }
+
+  async getTherapistServiceById(
+    therapistServiceId: string,
+  ): Promise<TherapistServiceInfoResponseDto> {
+    const result = await this.useCaseHandler.execute(
+      GetTherapistServiceByIdUsecase,
+      therapistServiceId,
+    );
+    return new TherapistServiceInfoResponseDto(
+      result,
+      await this.therapyManagementService.getTherapyCategoryById({
+        id: result.therapyCategoryId,
+      }),
+    );
   }
 }

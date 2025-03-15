@@ -25,6 +25,7 @@ export interface IServicePackageManagementService {
         price: number;
         servicePackageId: string;
         currency: string;
+        timeInMinutes: number;
         description: string;
       }[];
     },
@@ -35,6 +36,7 @@ export interface IServicePackageManagementService {
     request: {
       price?: number;
       currency?: string;
+      timeInMinutes?: number;
       description?: string;
     },
   ): Promise<TherapistServiceInfoResponseDto>;
@@ -47,4 +49,8 @@ export interface IServicePackageManagementService {
       servicePackageId?: string;
     },
   ): Promise<TherapistServiceInfoResponseDto[]>;
+
+  getTherapistServiceById(
+    therapistServiceId: string,
+  ): Promise<TherapistServiceInfoResponseDto>;
 }

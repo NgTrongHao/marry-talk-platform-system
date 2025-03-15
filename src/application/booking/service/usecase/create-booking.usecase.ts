@@ -1,0 +1,45 @@
+import { UseCase } from '../../../usecase.interface';
+import { Booking } from '../../../../core/domain/entity/booking.entity';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BookingRepository } from '../../../../core/domain/repository/booking.repository';
+import { IServicePackageManagementService } from '../../../service-package-management/service-package-management-service.interface';
+import { TherapistServiceInfoResponseDto } from '../../../service-package-management/service/dto/therapist-service-info-response.dto';
+
+export interface CreateBookingUsecaseCommand {
+  therapistServiceId: string;
+  userId: string;
+}
+
+@Injectable()
+export class CreateBookingUsecase
+  implements UseCase<CreateBookingUsecaseCommand, Booking>
+{
+  constructor(
+    @Inject('BookingRepository')
+    private bookingRepository: BookingRepository,
+    @Inject('IServicePackageManagementService')
+    private readonly servicePackageManagementService: IServicePackageManagementService,
+  ) {}
+
+  async execute(command: CreateBookingUsecaseCommand): Promise<Booking> {
+    let therapistService: TherapistServiceInfoResponseDto;
+    try {
+      therapistService =
+        await this.servicePackageManagementService.getTherapistServiceById(
+          command.therapistServiceId,
+        );
+    } catch {
+      throw new BadRequestException('Therapist service not found');
+    }
+
+    const booking = Booking.create({
+      therapistServiceId: therapistService.id,
+      servicePackageId: therapistService.package.id,
+      therapistId: therapistService.therapistId,
+      therapyId: therapistService.therapyCategory.id,
+      userId: command.userId,
+    });
+
+    return this.bookingRepository.save(booking);
+  }
+}

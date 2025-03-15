@@ -17,6 +17,11 @@ export class CreateTherapistServiceRequestDto {
   @IsNumber()
   price: number;
 
+  @ApiProperty({ example: 60 })
+  @IsNotEmpty()
+  @IsNumber()
+  timeInMinutes: number;
+
   @ApiProperty()
   @IsString()
   @IsNotEmpty()

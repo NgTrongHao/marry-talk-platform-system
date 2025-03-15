@@ -8,6 +8,7 @@ export class TherapistServiceInfoResponseDto {
   therapyCategory: TherapyInfoResponseDto;
   price: number;
   currency: string;
+  timeInMinutes: number;
   description: string;
   package: ServicePackageInfoResponseDto;
 
@@ -20,6 +21,7 @@ export class TherapistServiceInfoResponseDto {
     this.therapyCategory = therapyCategory;
     this.price = therapistService.price;
     this.currency = therapistService.currency;
+    this.timeInMinutes = therapistService.timeInMinutes;
     this.description = therapistService.description;
     this.package = new ServicePackageInfoResponseDto(therapistService.package);
   }

@@ -54,6 +54,7 @@ export class PrismaServicePackageRepository
         update: {
           price: service.price,
           currency: service.currency,
+          time_duration: service.timeInMinutes,
           description: service.description,
           package_id: service.package.id!,
         },
@@ -61,6 +62,7 @@ export class PrismaServicePackageRepository
           therapist_service_id: service.id,
           price: service.price,
           currency: service.currency,
+          time_duration: service.timeInMinutes,
           description: service.description,
           therapist_id: service.therapistId,
           therapy_id: service.therapyCategoryId,
@@ -160,5 +162,26 @@ export class PrismaServicePackageRepository
           PrismaServicePackageMapper.toTherapistServiceDomain(item),
         ),
       );
+  }
+
+  async getTherapistServiceById(
+    therapistServiceId: string,
+  ): Promise<TherapistService | null> {
+    return this.prisma.therapistService
+      .findUnique({
+        where: {
+          therapist_service_id: therapistServiceId,
+        },
+        include: {
+          package: true,
+        },
+      })
+      .then((result) => {
+        if (result) {
+          return PrismaServicePackageMapper.toTherapistServiceDomain(result);
+        }
+
+        return null;
+      });
   }
 }

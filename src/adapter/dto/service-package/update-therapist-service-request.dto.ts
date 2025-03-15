@@ -12,6 +12,11 @@ export class UpdateTherapistServiceRequestDto {
   @ValidateIf((o: UpdateTherapistServiceRequestDto) => o.price != null)
   price: number;
 
+  @ApiProperty({ example: 60 })
+  @IsNumber()
+  @ValidateIf((o: UpdateTherapistServiceRequestDto) => o.timeInMinutes != null)
+  timeInMinutes: number;
+
   @ApiProperty()
   @IsString()
   @ValidateIf((o: UpdateTherapistServiceRequestDto) => o.description == null)

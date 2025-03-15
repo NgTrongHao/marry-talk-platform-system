@@ -26,4 +26,8 @@ export interface ServicePackageRepository {
     sessions?: number;
     servicePackageId?: string;
   }): Promise<TherapistService[]>;
+
+  getTherapistServiceById(
+    therapistServiceId: string,
+  ): Promise<TherapistService | null>;
 }

@@ -11,6 +11,7 @@ export interface SetTherapistServicesWithTherapyUsecaseCommand {
     servicePackageId: string;
     currency: string;
     description: string;
+    timeInMinutes: number;
   }[];
 }
 
@@ -45,6 +46,7 @@ export class SetTherapistServicesWithTherapyUsecase
           package: servicePackage,
           price: service.price,
           currency: service.currency,
+          timeInMinutes: service.timeInMinutes,
           description: service.description,
         }),
       );

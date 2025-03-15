@@ -1,0 +1,55 @@
+import { Module } from '@nestjs/common';
+import { PersistenceModule } from '../../infrastructure/persistence/persistence.module';
+import { TherapyManagementServiceModule } from '../therapy-management/therapy-management-service.module';
+import { UsecaseHandler } from '../usecase-handler.service';
+import { BookingService } from './service/booking.service';
+import { ServicePackageManagementServiceModule } from '../service-package-management/service-package-management-service.module';
+import { CreateBookingUsecase } from './service/usecase/create-booking.usecase';
+import { ProcessBookingPaymentUsecase } from './service/usecase/process-booking-payment.usecase';
+import { CreatePaymentTransactionUsecase } from './service/usecase/create-payment-transaction.usecase';
+import { AddTransactionHistoryUsecase } from './service/usecase/add-transaction-history.usecase';
+import { UserServiceModule } from '../user/user-service.module';
+import { HandlePaymentResultUsecase } from './service/usecase/handle-payment-result.usecase';
+import { GetBookingByIdUsecase } from './service/usecase/get-booking-by-id.usecase';
+import { TherapistManagementServiceModule } from '../therapist-management/therapist-management-service.module';
+import { GetSessionsOfBookingUsecase } from './service/usecase/get-sessions-of-booking.usecase';
+import { AddTherapySessionUsecase } from './service/usecase/add-therapy-session.usecase';
+import { CheckExistSessionInTimeUsecase } from './service/usecase/check-exist-session-in-time.usecase';
+import { ValidateTherapySessionUsecase } from './service/usecase/validate-therapy-session.usecase';
+import { CancelTherapySessionUsecase } from './service/usecase/cancel-therapy-session.usecase';
+import { GetTherapySessionsByTherapistIdUsecase } from './service/usecase/get-therapy-sessions-by-therapist-id.usecase';
+
+const useCases = [
+  CreateBookingUsecase,
+  ProcessBookingPaymentUsecase,
+  CreatePaymentTransactionUsecase,
+  AddTransactionHistoryUsecase,
+  HandlePaymentResultUsecase,
+  GetBookingByIdUsecase,
+  GetSessionsOfBookingUsecase,
+  AddTherapySessionUsecase,
+  CheckExistSessionInTimeUsecase,
+  ValidateTherapySessionUsecase,
+  CancelTherapySessionUsecase,
+  GetTherapySessionsByTherapistIdUsecase,
+];
+
+@Module({
+  imports: [
+    PersistenceModule,
+    TherapyManagementServiceModule,
+    ServicePackageManagementServiceModule,
+    UserServiceModule,
+    TherapistManagementServiceModule,
+  ],
+  providers: [
+    {
+      provide: 'IBookingService',
+      useClass: BookingService,
+    },
+    UsecaseHandler,
+    ...useCases,
+  ],
+  exports: [UsecaseHandler, 'IBookingService'],
+})
+export class BookingServiceModule {}

@@ -23,6 +23,7 @@ export class PrismaServicePackageMapper {
       therapyCategoryId: entity.therapy_id,
       price: entity.price.toNumber(),
       currency: entity.currency,
+      timeInMinutes: entity.time_duration,
       description: entity.description,
       package: this.toDomain(entity.package),
     });

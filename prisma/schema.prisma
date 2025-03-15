@@ -39,6 +39,7 @@ enum TransactionStatus {
   FAILED
   APPROVED
   REJECTED
+  CANCELLED
 }
 
 enum NotificationType {
@@ -94,7 +95,7 @@ model User {
   sessionNote         SessionNote[]
   report              Report[]
   withdrawRequest     WithdrawRequest[]
-  transactionHistory  TransactionHistory?
+  transactionHistory  TransactionHistory[]
   refundRequest       RefundRequest[]
   unavailableSchedule UnavailableSchedule[]
   workingSchedule     WorkingSchedule[]
@@ -124,6 +125,7 @@ model Therapy {
 
   therapyTest   TherapyTest[]
   therapistType TherapistType[]
+  booking       Booking[]
 }
 
 model TherapistType {
@@ -217,6 +219,7 @@ model TherapistService {
   therapist_service_id String  @id @default(uuid())
   price                Decimal
   currency             String  @default("VND")
+  time_duration        Int
   description          String
   enabled              Boolean @default(true)
   therapist_id         String  @map("therapist_id")
@@ -225,31 +228,39 @@ model TherapistService {
 
   therapistType TherapistType  @relation(fields: [therapist_id, therapy_id], references: [therapist_id, therapy_id])
   package       ServicePackage @relation(fields: [package_id], references: [package_id])
+  booking       Booking[]
 
+  @@unique([therapist_id, package_id])
   @@index([therapist_id])
   @@index([therapy_id])
 }
 
 model Booking {
-  booking_id   String         @id @default(uuid())
-  therapist_id String
-  user_id      String
-  package_id   String
-  status       ProgressStatus @default(PENDING)
-  created_at   DateTime       @default(now())
-  updated_at   DateTime       @updatedAt
-  expired_at   DateTime
-  rating       Int?
+  booking_id           String         @id @default(uuid())
+  therapist_id         String
+  user_id              String
+  package_id           String
+  therapy_id           String
+  therapist_service_id String
+  status               ProgressStatus @default(PENDING)
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+  expires_at           DateTime
+  rating               Int?
 
-  therapist   User           @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
-  user        User           @relation("UserBooking", fields: [user_id], references: [user_id])
-  package     ServicePackage @relation(fields: [package_id], references: [package_id])
-  session     Session[]
-  transaction Transaction?   @relation(map: "payment")
+  therapist        User             @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
+  user             User             @relation("UserBooking", fields: [user_id], references: [user_id])
+  package          ServicePackage   @relation(fields: [package_id], references: [package_id])
+  therapy          Therapy          @relation(fields: [therapy_id], references: [therapy_id])
+  therapistService TherapistService @relation(fields: [therapist_service_id], references: [therapist_service_id])
+  session          Session[]        @relation("BookingSession")
+  transaction      Transaction[]    @relation(map: "payment")
 
   @@index([therapist_id])
   @@index([user_id])
   @@index([package_id])
+  @@index([therapy_id])
+  @@index([status])
 }
 
 model Session {
@@ -257,14 +268,16 @@ model Session {
   session_number Int
   status         ProgressStatus @default(PENDING)
   session_date   DateTime
+  start_time     String // "09:00"
+  end_time       String
   meeting_link   String
   booking_id     String
-  therapist_id   String
-  user_id        String
+  therapist_id   String?
+  user_id        String?
 
-  booking     Booking       @relation(fields: [booking_id], references: [booking_id])
-  therapist   User          @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
-  user        User          @relation("UserBooking", fields: [user_id], references: [user_id])
+  booking     Booking       @relation("BookingSession", fields: [booking_id], references: [booking_id])
+  therapist   User?         @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
+  user        User?         @relation("UserBooking", fields: [user_id], references: [user_id])
   sessionNote SessionNote[]
   report      Report[]
 
@@ -306,32 +319,38 @@ model Report {
 }
 
 model Transaction {
-  transaction_id String            @id @default(uuid())
-  amount         Decimal
-  currency       String            @default("VND")
-  type           TransactionType
-  status         TransactionStatus @default(PENDING)
-  created_at     DateTime          @default(now())
-  updated_at     DateTime          @updatedAt
-  reference_id   String            @unique @map("reference_id")
+  transaction_id           String            @id @default(uuid())
+  amount                   Decimal
+  currency                 String            @default("VND")
+  type                     TransactionType
+  status                   TransactionStatus @default(PENDING)
+  created_at               DateTime          @default(now())
+  updated_at               DateTime          @updatedAt
+  return_url               String?
+  reference_transaction_id String            @unique
+  reference_payment_id     String?
+  reference_refund_id      String?           @unique @map("reference_refund_id")
+  reference_withdraw_id    String?           @unique @map("reference_withdraw_id")
+  changed_by               String?           @map("changed_by")
 
-  payment            Booking?             @relation(fields: [reference_id], references: [booking_id], map: "payment")
-  refundRequest      RefundRequest?       @relation(fields: [reference_id], references: [request_id], map: "refundRequest")
-  withdrawRequest    WithdrawRequest?     @relation(fields: [reference_id], references: [request_id], map: "withdrawRequest")
+  payment         Booking?         @relation(fields: [reference_payment_id], references: [booking_id], map: "payment")
+  refundRequest   RefundRequest?   @relation(fields: [reference_refund_id], references: [request_id], map: "refundRequest")
+  withdrawRequest WithdrawRequest? @relation(fields: [reference_withdraw_id], references: [request_id], map: "withdrawRequest")
+
   transactionHistory TransactionHistory[]
 }
 
 model TransactionHistory {
-  history_id     String            @id @default(uuid())
-  transaction_id String
-  amount         Decimal
-  currency       String            @default("VND")
-  type           TransactionType
-  old_status     TransactionStatus
-  new_status     TransactionStatus
-  note           String
-  created_at     DateTime          @default(now())
-  changed_by     String            @unique @map("changed_by")
+  history_id                 String             @id @default(uuid())
+  transaction_id             String
+  amount                     Decimal
+  currency                   String             @default("VND")
+  type                       TransactionType
+  old_status                 TransactionStatus?
+  new_status                 TransactionStatus
+  reference_transaction_info Json?
+  created_at                 DateTime           @default(now())
+  changed_by                 String             @map("changed_by")
 
   transaction Transaction @relation(fields: [transaction_id], references: [transaction_id])
   user        User        @relation(fields: [changed_by], references: [user_id])

@@ -7,6 +7,7 @@ export interface UpdateTherapistServiceUsecaseCommand {
   therapistServiceId: string;
   price?: number;
   currency?: string;
+  timeInMinutes?: number;
   description?: string;
 }
 
@@ -37,6 +38,10 @@ export class UpdateTherapistServiceUsecase
 
     if (command.currency) {
       therapistService.currency = command.currency;
+    }
+
+    if (command.timeInMinutes) {
+      therapistService.timeInMinutes = command.timeInMinutes;
     }
 
     if (command.description) {

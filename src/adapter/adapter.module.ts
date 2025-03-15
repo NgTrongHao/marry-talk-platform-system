@@ -15,6 +15,10 @@ import { PreMaritalTestController } from './api/pre-marital-test.controller';
 import { PreMaritalTestServiceModule } from '../application/premarital-test/pre-marital-test-service.module';
 import { ServicePackageManagementServiceModule } from '../application/service-package-management/service-package-management-service.module';
 import { ServicePackageController } from './api/service-package.controller';
+import { BookingServiceModule } from '../application/booking/booking-service.module';
+import { BookingController } from './api/booking.controller';
+import { PaymentController } from './api/payment.controller';
+import { PaymentModule } from '../infrastructure/external/payment/payment.module';
 
 @Module({
   imports: [
@@ -25,6 +29,8 @@ import { ServicePackageController } from './api/service-package.controller';
     TherapistManagementServiceModule,
     PreMaritalTestServiceModule,
     ServicePackageManagementServiceModule,
+    BookingServiceModule,
+    PaymentModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [
@@ -35,6 +41,8 @@ import { ServicePackageController } from './api/service-package.controller';
     TherapistController,
     PreMaritalTestController,
     ServicePackageController,
+    BookingController,
+    PaymentController,
   ],
 })
 export class AdapterModule {}

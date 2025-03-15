@@ -7,6 +7,7 @@ interface TherapistServiceProps {
   therapyCategoryId: string;
   price: number;
   currency: string;
+  timeInMinutes: number;
   description: string;
   package: ServicePackage;
 }
@@ -47,6 +48,10 @@ export class TherapistService extends Entity<TherapistServiceProps> {
     return this.props.currency;
   }
 
+  get timeInMinutes(): number {
+    return this.props.timeInMinutes;
+  }
+
   get description(): string {
     return this.props.description;
   }
@@ -61,6 +66,10 @@ export class TherapistService extends Entity<TherapistServiceProps> {
 
   set currency(currency: string) {
     this.props.currency = currency;
+  }
+
+  set timeInMinutes(timeInMinutes: number) {
+    this.props.timeInMinutes = timeInMinutes;
   }
 
   set description(description: string) {

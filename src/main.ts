@@ -16,6 +16,14 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
   const port: number = configService.getOrThrow<number>('PORT');
 
+  // Enable CORS
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    allowedHeaders: 'Content-Type, Authorization',
+  });
+
   // Global Middleware
   app.useGlobalPipes(
     new ValidationPipe({
