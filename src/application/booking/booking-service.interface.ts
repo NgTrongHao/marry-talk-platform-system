@@ -44,4 +44,6 @@ export interface IBookingService {
     therapistId: string,
     date: Date,
   ): Promise<SessionInfoResponseDto[]>;
+
+  completeTherapySession(sessionId: string): Promise<SessionInfoResponseDto>;
 }

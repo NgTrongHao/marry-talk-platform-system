@@ -87,4 +87,17 @@ export class SessionController {
       .getTherapySessionsByTherapistId(therapistId, date || new Date())
       .then((result) => new BaseResponseDto(200, result));
   }
+
+  @Patch('complete-therapy-session/:sessionId')
+  @ApiOperation({
+    summary: 'Complete Therapy Session REST API',
+    description:
+      'Complete Therapy Session REST API is used to complete a therapy session.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async completeTherapySession(@Param('sessionId') sessionId: string) {
+    return await this.bookingService
+      .completeTherapySession(sessionId)
+      .then((result) => new BaseResponseDto(200, result));
+  }
 }

@@ -342,7 +342,7 @@ export class CreatePaymentTransactionUsecase
 
     await this.saveTransactionHistory(savedTransaction);
 
-    await this.updateBookingStatus(booking, ProgressStatus.COMPLETED);
+    await this.updateBookingStatus(booking, ProgressStatus.IN_PROGRESS);
 
     return savedTransaction;
   }

@@ -85,20 +85,22 @@ model User {
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 
-  notification        Notification[]
-  testResult          TestResult[]
-  therapistType       TherapistType[]
-  userBooking         Booking[]             @relation("UserBooking")
-  therapistBooking    Booking[]             @relation("TherapistBooking")
-  therapistSession    Session[]             @relation("TherapistBooking")
-  userSession         Session[]             @relation("UserBooking")
-  sessionNote         SessionNote[]
-  report              Report[]
-  withdrawRequest     WithdrawRequest[]
-  transactionHistory  TransactionHistory[]
-  refundRequest       RefundRequest[]
-  unavailableSchedule UnavailableSchedule[]
-  workingSchedule     WorkingSchedule[]
+  notification           Notification[]
+  testResult             TestResult[]
+  therapistType          TherapistType[]
+  userBooking            Booking[]                @relation("UserBooking")
+  therapistBooking       Booking[]                @relation("TherapistBooking")
+  therapistSession       Session[]                @relation("TherapistBooking")
+  userSession            Session[]                @relation("UserBooking")
+  sessionNote            SessionNote[]
+  report                 Report[]
+  withdrawRequest        WithdrawRequest[]
+  transactionHistory     TransactionHistory[]
+  refundRequest          RefundRequest[]
+  unavailableSchedule    UnavailableSchedule[]
+  workingSchedule        WorkingSchedule[]
+  therapistPayoutAccount TherapistPayoutAccount[]
+  therapistBalance       TherapistBalance?
 
   @@index([email])
   @@index([user_id])
@@ -357,19 +359,42 @@ model TransactionHistory {
 }
 
 model WithdrawRequest {
-  request_id   String        @id @default(uuid())
-  amount       Decimal
-  currency     String        @default("VND")
-  status       RequestStatus @default(PENDING)
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
-  therapist_id String        @map("therapist_id")
+  request_id        String        @id @default(uuid())
+  amount            Decimal
+  currency          String        @default("VND")
+  status            RequestStatus @default(PENDING)
+  created_at        DateTime      @default(now())
+  updated_at        DateTime      @updatedAt
+  therapist_id      String        @map("therapist_id")
+  payout_account_id String        @map("payout_account_id")
 
-  therapist   User         @relation(fields: [therapist_id], references: [user_id])
-  transaction Transaction? @relation(map: "withdrawRequestTransactionId")
+  therapist     User                   @relation(fields: [therapist_id], references: [user_id])
+  transaction   Transaction?           @relation(map: "withdrawRequestTransactionId")
+  payoutAccount TherapistPayoutAccount @relation(fields: [payout_account_id], references: [id])
 
   @@index([therapist_id])
   @@index([status])
+}
+
+model TherapistPayoutAccount {
+  id             String   @id @default(uuid())
+  therapist_id   String   @map("therapist_id")
+  account_number String
+  bank_code      String?
+  account_name   String?
+  created_at     DateTime @default(now())
+
+  therapist User @relation(fields: [therapist_id], references: [user_id], onDelete: Cascade)
+
+  WithdrawRequest WithdrawRequest[]
+}
+
+model TherapistBalance {
+  therapist_id String   @id @unique @map("therapist_id")
+  balance      Decimal  @default(0.0)
+  updated_at   DateTime @updatedAt
+
+  therapist User @relation(fields: [therapist_id], references: [user_id], onDelete: Cascade)
 }
 
 model RefundRequest {

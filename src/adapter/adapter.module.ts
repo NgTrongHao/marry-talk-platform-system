@@ -19,6 +19,7 @@ import { BookingServiceModule } from '../application/booking/booking-service.mod
 import { BookingController } from './api/booking.controller';
 import { PaymentModule } from '../infrastructure/external/payment/payment.module';
 import { SessionController } from './api/session.controller';
+import { VnpayModule } from '../infrastructure/external/payment/vnPay/modules/vnpay.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { SessionController } from './api/session.controller';
     ServicePackageManagementServiceModule,
     BookingServiceModule,
     PaymentModule,
+    VnpayModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [

@@ -9,6 +9,8 @@ import {
   dayOfWeekToNumber,
   numberToDayOfWeek,
 } from '../../../../core/domain/entity/enum/day-of-week.enum';
+import { TherapistBalance } from '../../../../core/domain/entity/therapist-balance.entity';
+import { TherapistPayoutAccount } from '../../../../core/domain/entity/therapist-payout-account.entity';
 
 @Injectable()
 export class PrismaTherapistRepository implements TherapistRepository {
@@ -259,5 +261,124 @@ export class PrismaTherapistRepository implements TherapistRepository {
         }),
       ),
     }));
+  }
+
+  async saveTherapistBalance(
+    therapistBalance: TherapistBalance,
+  ): Promise<TherapistBalance> {
+    const balance = await this.prisma.therapistBalance.findUnique({
+      where: { therapist_id: therapistBalance.therapistId },
+    });
+    if (balance) {
+      return this.prisma.therapistBalance
+        .update({
+          where: { therapist_id: therapistBalance.therapistId },
+          data: {
+            balance: therapistBalance.balance,
+          },
+        })
+        .then((result) =>
+          PrismaTherapistMapper.toTherapistBalanceDomain(result),
+        );
+    } else {
+      return this.prisma.therapistBalance
+        .create({
+          data: {
+            therapist_id: therapistBalance.therapistId,
+            balance: therapistBalance.balance,
+          },
+        })
+        .then((result) =>
+          PrismaTherapistMapper.toTherapistBalanceDomain(result),
+        );
+    }
+  }
+
+  async addPayoutAccount(
+    payoutAccount: TherapistPayoutAccount,
+  ): Promise<TherapistPayoutAccount> {
+    const result = await this.prisma.therapistPayoutAccount.upsert({
+      where: { id: payoutAccount.id! },
+      update: {
+        account_number: payoutAccount.accountNumber,
+        bank_code: payoutAccount.bankCode,
+        account_name: payoutAccount.accountName,
+      },
+      create: {
+        therapist_id: payoutAccount.therapistId,
+        account_number: payoutAccount.accountNumber,
+        bank_code: payoutAccount.bankCode,
+        account_name: payoutAccount.accountName,
+      },
+    });
+    return PrismaTherapistMapper.toTherapistPayoutAccountDomain(result);
+  }
+
+  async getTherapistPayoutAccounts(
+    therapistId: string,
+  ): Promise<TherapistPayoutAccount[]> {
+    const accounts = await this.prisma.therapistPayoutAccount.findMany({
+      where: { therapist_id: therapistId },
+    });
+    return accounts.map((account) =>
+      PrismaTherapistMapper.toTherapistPayoutAccountDomain(account),
+    );
+  }
+
+  async getTherapistPayoutAccount(
+    accountId: string,
+  ): Promise<TherapistPayoutAccount | null> {
+    const account = await this.prisma.therapistPayoutAccount.findUnique({
+      where: { id: accountId },
+    });
+    return account
+      ? PrismaTherapistMapper.toTherapistPayoutAccountDomain(account)
+      : null;
+  }
+
+  async updateTherapistBalance(
+    therapistId: string,
+    amount: number,
+  ): Promise<TherapistBalance> {
+    const balance = await this.prisma.therapistBalance.findUnique({
+      where: { therapist_id: therapistId },
+    });
+    if (balance) {
+      return this.prisma.therapistBalance
+        .update({
+          where: { therapist_id: therapistId },
+          data: {
+            balance: {
+              increment: amount,
+            },
+          },
+        })
+        .then((result) =>
+          PrismaTherapistMapper.toTherapistBalanceDomain(result),
+        );
+    } else {
+      return this.prisma.therapistBalance
+        .create({
+          data: {
+            therapist_id: therapistId,
+            balance: amount,
+          },
+        })
+        .then((result) =>
+          PrismaTherapistMapper.toTherapistBalanceDomain(result),
+        );
+    }
+  }
+
+  async getTherapistBalance(
+    therapistId: string,
+  ): Promise<TherapistBalance | null> {
+    return this.prisma.therapistBalance
+      .findUnique({
+        where: { therapist_id: therapistId },
+      })
+      .then((result) =>
+        result ? PrismaTherapistMapper.toTherapistBalanceDomain(result) : null,
+      );
   }
 }

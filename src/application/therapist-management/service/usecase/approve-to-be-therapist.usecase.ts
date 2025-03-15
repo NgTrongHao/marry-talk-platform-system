@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { UseCase } from '../../../usecase.interface';
 import { TherapistRepository } from '../../../../core/domain/repository/therapist.repository';
+import { TherapistBalance } from '../../../../core/domain/entity/therapist-balance.entity';
 
 export interface ApproveToBeTherapistUsecaseCommand {
   therapistId: string;
@@ -37,6 +38,9 @@ export class ApproveToBeTherapistUsecase
     } else {
       await this.therapistRepository.approveTherapistProfile(
         therapist.user.id!,
+      );
+      await this.therapistRepository.saveTherapistBalance(
+        TherapistBalance.create(therapist.user.id!),
       );
     }
   }

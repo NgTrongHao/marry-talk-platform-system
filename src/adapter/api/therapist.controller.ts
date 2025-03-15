@@ -5,6 +5,7 @@ import {
   Inject,
   Param,
   Patch,
+  Post,
   Put,
   Query,
   UseGuards,
@@ -23,6 +24,7 @@ import { CurrentUser } from '../../infrastructure/security/decorator/current-use
 import { TokenPayload } from '../../application/user/service/token.service';
 import { TherapistScheduleRequest } from '../dto/therapist/therapist-schedule-request.dto';
 import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
+import { TherapistPayoutAccountRequestDto } from '../dto/therapist/therapist-payout-account-request.dto';
 
 @Controller('therapists')
 @ApiTags('Therapist')
@@ -106,7 +108,7 @@ export class TherapistController {
       );
   }
 
-  @Patch('approve-therapist-management/:therapistId')
+  @Patch('approve-therapist/:therapistId')
   @ApiOperation({
     summary: 'Approve/Reject Therapist REST API',
     description:
@@ -175,6 +177,51 @@ export class TherapistController {
   async getTherapistWorkingHours(@Param('therapistId') therapistId: string) {
     return await this.therapistManagementService
       .getTherapistWorkingHours(therapistId)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Post('add-payout-account')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Add Payout Account REST API',
+    description:
+      'Add Payout Account REST API is used to add payout account for therapist.',
+  })
+  async addPayoutAccount(
+    @CurrentUser() info: TokenPayload,
+    @Body() request: TherapistPayoutAccountRequestDto,
+  ) {
+    return await this.therapistManagementService
+      .addPayoutAccount(info.userId, request)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('get-payout-accounts')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get Payout Accounts REST API',
+    description:
+      'Get Payout Accounts REST API is used to get payout accounts for therapist.',
+  })
+  async getPayoutAccounts(@CurrentUser() info: TokenPayload) {
+    return await this.therapistManagementService
+      .getTherapistPayoutAccounts(info.userId)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('get-therapist-balance')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get Therapist Balance REST API',
+    description:
+      'Get Therapist Balance REST API is used to get balance of therapist.',
+  })
+  async getTherapistBalance(@CurrentUser() info: TokenPayload) {
+    return await this.therapistManagementService
+      .getTherapistBalance(info.userId)
       .then((result) => new BaseResponseDto(200, result));
   }
 }

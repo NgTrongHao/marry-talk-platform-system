@@ -24,6 +24,7 @@ import { TokenPayload } from '../../application/user/service/token.service';
 import { PaymentSupportService } from '../../application/booking/service/payment-support.service';
 import { Request, Response } from 'express';
 import { ProcessBookingPaymentDto } from '../dto/booking/process-booking-payment-request.dto';
+import { IVnpayService } from '../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
 
 @Controller('booking')
 @ApiTags('Booking')
@@ -32,6 +33,7 @@ export class BookingController {
     @Inject('IBookingService') private readonly bookingService: IBookingService,
     @Inject('PaymentSupportService')
     private readonly paymentSupportService: PaymentSupportService,
+    @Inject('IVnpayService') private readonly vnpayService: IVnpayService,
   ) {}
 
   @Post('create/:therapistServiceId')
@@ -96,5 +98,16 @@ export class BookingController {
       ipAddress,
       returnUrl: request.returnUrl,
     });
+  }
+
+  @Get('vnpay/get-all-banks')
+  @ApiOperation({
+    summary: 'Get All Banks REST API',
+    description: 'Get All Banks REST API is used to get all banks.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async getAllBanks() {
+    const bankList = await this.vnpayService.getBankList();
+    return new BaseResponseDto(200, bankList);
   }
 }

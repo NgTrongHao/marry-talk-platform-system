@@ -24,6 +24,12 @@ import { FindApprovedTherapistUsecase } from './usecase/find-approved-therapist.
 import { CountApprovedTherapistUsecase } from './usecase/count-approved-therapist.usecase';
 import { FindUnapprovedTherapistUsecase } from './usecase/find-unapproved-therapist.usecase';
 import { CountUnapprovedTherapistUsecase } from './usecase/count-unapproved-therapist.usecase';
+import { TherapistPayoutAccount } from '../../../core/domain/entity/therapist-payout-account.entity';
+import { AddPayoutAccountUseCase } from './usecase/add-payout-account.usecase';
+import { TherapistBalanceInfoDto } from './dto/therapist-balance-info.dto';
+import { GetTherapistBalanceUsecase } from './usecase/get-therapist-balance.usecase';
+import { TherapistPayoutAccountInfoDto } from './dto/therapist-payout-account-info.dto';
+import { GetTherapistPayoutAccountsUsecase } from './usecase/get-therapist-payout-accounts.usecase';
 
 @Injectable()
 export class TherapistManagementService implements ITherapistManagementService {
@@ -201,5 +207,43 @@ export class TherapistManagementService implements ITherapistManagementService {
         );
       }),
     );
+  }
+
+  addPayoutAccount(
+    userId: string,
+    request: {
+      accountNumber: string;
+      bankCode: string;
+      accountName: string;
+    },
+  ): Promise<TherapistPayoutAccount> {
+    return this.usecaseHandler.execute(AddPayoutAccountUseCase, {
+      therapistId: userId,
+      accountNumber: request.accountNumber,
+      bankCode: request.bankCode,
+      accountName: request.accountName,
+    });
+  }
+
+  async getTherapistBalance(
+    therapistId: string,
+  ): Promise<TherapistBalanceInfoDto> {
+    return this.usecaseHandler
+      .execute(GetTherapistBalanceUsecase, therapistId)
+      .then((balance) => {
+        return new TherapistBalanceInfoDto(balance);
+      });
+  }
+
+  async getTherapistPayoutAccounts(
+    therapistId: string,
+  ): Promise<TherapistPayoutAccountInfoDto[]> {
+    return this.usecaseHandler
+      .execute(GetTherapistPayoutAccountsUsecase, therapistId)
+      .then((payouts) => {
+        return payouts.map((payout) => {
+          return new TherapistPayoutAccountInfoDto(payout);
+        });
+      });
   }
 }

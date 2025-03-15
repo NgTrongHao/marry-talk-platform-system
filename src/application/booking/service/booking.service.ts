@@ -16,6 +16,7 @@ import { GetSessionsOfBookingUsecase } from './usecase/get-sessions-of-booking.u
 import { CancelTherapySessionUsecase } from './usecase/cancel-therapy-session.usecase';
 import { SessionInfoResponseDto } from './dto/session-info-response.dto';
 import { GetTherapySessionsByTherapistIdUsecase } from './usecase/get-therapy-sessions-by-therapist-id.usecase';
+import { CompleteTherapySessionUsecase } from './usecase/complete-therapy-session.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -164,6 +165,19 @@ export class BookingService implements IBookingService {
               await this.getBookingById(result.booking.id!),
             );
           }),
+        );
+      });
+  }
+
+  async completeTherapySession(
+    sessionId: string,
+  ): Promise<SessionInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(CompleteTherapySessionUsecase, sessionId)
+      .then(async (result) => {
+        return new SessionInfoResponseDto(
+          result,
+          await this.getBookingById(result.booking.id!),
         );
       });
   }

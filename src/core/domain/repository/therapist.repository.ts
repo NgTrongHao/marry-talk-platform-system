@@ -1,6 +1,8 @@
 import { Therapist } from '../entity/therapist.entity';
 import { TherapistType } from '../entity/therapist-type.entity';
 import { WorkingHours } from '../entity/working-hours.entity';
+import { TherapistBalance } from '../entity/therapist-balance.entity';
+import { TherapistPayoutAccount } from '../entity/therapist-payout-account.entity';
 
 export interface TherapistRepository {
   createTherapistProfile(therapist: Therapist): Promise<Therapist>;
@@ -48,4 +50,27 @@ export interface TherapistRepository {
   >;
 
   countUnapprovedTherapist(therapyId: string | undefined): Promise<number>;
+
+  saveTherapistBalance(
+    therapistBalance: TherapistBalance,
+  ): Promise<TherapistBalance>;
+
+  getTherapistBalance(therapistId: string): Promise<TherapistBalance | null>;
+
+  addPayoutAccount(
+    payoutAccount: TherapistPayoutAccount,
+  ): Promise<TherapistPayoutAccount>;
+
+  updateTherapistBalance(
+    therapistId: string,
+    amount: number,
+  ): Promise<TherapistBalance>;
+
+  getTherapistPayoutAccounts(
+    therapistId: string,
+  ): Promise<TherapistPayoutAccount[]>;
+
+  getTherapistPayoutAccount(
+    accountId: string,
+  ): Promise<TherapistPayoutAccount | null>;
 }

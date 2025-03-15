@@ -18,6 +18,8 @@ import { CheckExistSessionInTimeUsecase } from './service/usecase/check-exist-se
 import { ValidateTherapySessionUsecase } from './service/usecase/validate-therapy-session.usecase';
 import { CancelTherapySessionUsecase } from './service/usecase/cancel-therapy-session.usecase';
 import { GetTherapySessionsByTherapistIdUsecase } from './service/usecase/get-therapy-sessions-by-therapist-id.usecase';
+import { CompleteTherapySessionUsecase } from './service/usecase/complete-therapy-session.usecase';
+import { CompleteBookingUsecase } from './service/usecase/complete-booking.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -32,6 +34,8 @@ const useCases = [
   ValidateTherapySessionUsecase,
   CancelTherapySessionUsecase,
   GetTherapySessionsByTherapistIdUsecase,
+  CompleteTherapySessionUsecase,
+  CompleteBookingUsecase,
 ];
 
 @Module({

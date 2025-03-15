@@ -35,9 +35,14 @@ export class Booking extends Entity<BookingProps> {
     status: ProgressStatus,
   ): Booking {
     switch (status) {
+      case ProgressStatus.IN_PROGRESS: {
+        props.progressStatus = ProgressStatus.IN_PROGRESS;
+        props.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90); // expiresAt in 90 days
+        break;
+      }
       case ProgressStatus.COMPLETED: {
         props.progressStatus = ProgressStatus.COMPLETED;
-        props.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90); // expiresAt in 90 days
+        // props.expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24 * 90); // expiresAt in 90 days
         break;
       }
       case ProgressStatus.CANCELLED: {

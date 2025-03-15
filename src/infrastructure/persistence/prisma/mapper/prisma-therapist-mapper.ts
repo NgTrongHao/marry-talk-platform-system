@@ -1,10 +1,14 @@
 import {
+  TherapistBalance as PrismaTherapistBalance,
+  TherapistPayoutAccount as PrismaTherapistPayoutAccount,
   TherapistType as PrismaTherapistType,
   User as PrismaTherapist,
 } from '@prisma/client';
 import { PrismaUserMapper } from './prisma-user-mapper';
 import { Therapist } from '../../../../core/domain/entity/therapist.entity';
 import { TherapistType } from '../../../../core/domain/entity/therapist-type.entity';
+import { TherapistBalance } from '../../../../core/domain/entity/therapist-balance.entity';
+import { TherapistPayoutAccount } from '../../../../core/domain/entity/therapist-payout-account.entity';
 
 export class PrismaTherapistMapper {
   static toDomain(
@@ -26,6 +30,28 @@ export class PrismaTherapistMapper {
           enable: type.enabled,
         }),
       ),
+    });
+  }
+
+  static toTherapistBalanceDomain(
+    entity: PrismaTherapistBalance,
+  ): TherapistBalance {
+    return TherapistBalance.build({
+      therapistId: entity.therapist_id,
+      balance: Number(entity.balance),
+      updatedAt: entity.updated_at,
+    });
+  }
+
+  static toTherapistPayoutAccountDomain(
+    entity: PrismaTherapistPayoutAccount,
+  ): TherapistPayoutAccount {
+    return TherapistPayoutAccount.build({
+      therapistId: entity.therapist_id,
+      accountNumber: entity.account_number,
+      bankCode: entity.bank_code ?? undefined,
+      accountName: entity.account_name ?? undefined,
+      createdAt: entity.created_at,
     });
   }
 }
