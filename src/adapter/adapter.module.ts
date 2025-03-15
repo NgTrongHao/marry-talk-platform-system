@@ -17,8 +17,8 @@ import { ServicePackageManagementServiceModule } from '../application/service-pa
 import { ServicePackageController } from './api/service-package.controller';
 import { BookingServiceModule } from '../application/booking/booking-service.module';
 import { BookingController } from './api/booking.controller';
-import { PaymentController } from './api/payment.controller';
 import { PaymentModule } from '../infrastructure/external/payment/payment.module';
+import { SessionController } from './api/session.controller';
 
 @Module({
   imports: [
@@ -42,7 +42,7 @@ import { PaymentModule } from '../infrastructure/external/payment/payment.module
     PreMaritalTestController,
     ServicePackageController,
     BookingController,
-    PaymentController,
+    SessionController,
   ],
 })
 export class AdapterModule {}

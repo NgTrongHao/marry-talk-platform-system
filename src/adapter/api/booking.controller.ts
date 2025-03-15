@@ -4,15 +4,15 @@ import {
   Get,
   Inject,
   Param,
-  Patch,
   Post,
   Query,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
-  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -21,13 +21,17 @@ import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard
 import { BaseResponseDto } from '../dto/base-response.dto';
 import { CurrentUser } from '../../infrastructure/security/decorator/current-user.decorator';
 import { TokenPayload } from '../../application/user/service/token.service';
-import { AddTherapySessionRequestDto } from '../dto/booking/add-therapy-session-request.dto';
+import { PaymentSupportService } from '../../application/booking/service/payment-support.service';
+import { Request, Response } from 'express';
+import { ProcessBookingPaymentDto } from '../dto/booking/process-booking-payment-request.dto';
 
 @Controller('booking')
 @ApiTags('Booking')
 export class BookingController {
   constructor(
     @Inject('IBookingService') private readonly bookingService: IBookingService,
+    @Inject('PaymentSupportService')
+    private readonly paymentSupportService: PaymentSupportService,
   ) {}
 
   @Post('create/:therapistServiceId')
@@ -59,70 +63,38 @@ export class BookingController {
       .then((result) => new BaseResponseDto(200, result));
   }
 
-  @Post('add-therapy-session/:bookingId')
+  @Get('vnpay/callback')
   @ApiOperation({
-    summary: 'Add Therapy Session REST API',
+    summary: 'VNPay Callback REST API (FE do not call this API)',
     description:
-      'Add Therapy Session REST API is used to add a therapy session.',
+      'VNPay Callback REST API is endpoint for VNPay callback (FE do not call this API)',
   })
-  @ApiResponse({ status: 201, description: 'Created' })
-  async addTherapySession(
+  async vnpayCallback(@Query() vnpayResponse: any, @Res() res: Response) {
+    const url = await this.paymentSupportService.paymentCallback(vnpayResponse);
+    return res.redirect(url);
+  }
+
+  @Post('vnpay/process-booking-payment/:bookingId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Process Booking Payment REST API',
+    description:
+      'Process Booking Payment REST API is used to process booking payment.',
+  })
+  @ApiResponse({ status: 200, description: 'Return payment URL' })
+  async processBookingPayment(
     @Param('bookingId') bookingId: string,
-    @Body() request: AddTherapySessionRequestDto,
+    @Body() request: ProcessBookingPaymentDto,
+    @CurrentUser() info: TokenPayload,
+    @Req() req: Request,
   ) {
-    return await this.bookingService
-      .addTherapySession({
-        bookingId,
-        sessionDate: request.sessionDate,
-        startTime: request.startTime,
-      })
-      .then((result) => new BaseResponseDto(201, result));
-  }
-
-  @Get('get-sessions-by-booking-id/:bookingId')
-  @ApiOperation({
-    summary: 'Get Sessions By Booking Id REST API',
-    description:
-      'Get Sessions By Booking Id REST API is used to get sessions by booking id.',
-  })
-  @ApiResponse({ status: 200, description: 'Success' })
-  async getSessionsByBookingId(@Param('bookingId') bookingId: string) {
-    return await this.bookingService
-      .getSessionsByBookingId(bookingId)
-      .then((result) => new BaseResponseDto(200, result));
-  }
-
-  @Patch('cancel-therapy-session/:sessionId')
-  @ApiOperation({
-    summary: 'Cancel Therapy Session REST API',
-    description:
-      'Cancel Therapy Session REST API is used to cancel a therapy session.',
-  })
-  @ApiResponse({ status: 200, description: 'Success' })
-  async cancelTherapySession(@Param('sessionId') sessionId: string) {
-    return await this.bookingService
-      .cancelTherapySession(sessionId)
-      .then((result) => new BaseResponseDto(200, result));
-  }
-
-  @Get('get-therapy-sessions/therapist/:therapistId')
-  @ApiOperation({
-    summary: 'Get Therapy Sessions REST API',
-    description:
-      'Get Therapy Sessions REST API is used to get therapy sessions.',
-  })
-  @ApiQuery({
-    name: 'date',
-    required: false,
-    description: 'Date in YYYY-MM-DD format (default: today)',
-  })
-  @ApiResponse({ status: 200, description: 'Success' })
-  async getTherapySessions(
-    @Param('therapistId') therapistId: string,
-    @Query('date') date?: Date,
-  ) {
-    return await this.bookingService
-      .getTherapySessionsByTherapistId(therapistId, date || new Date())
-      .then((result) => new BaseResponseDto(200, result));
+    const ipAddress: string = req.ip!;
+    return await this.paymentSupportService.buildPaymentUrl({
+      userId: info.userId,
+      bookingId,
+      ipAddress,
+      returnUrl: request.returnUrl,
+    });
   }
 }
