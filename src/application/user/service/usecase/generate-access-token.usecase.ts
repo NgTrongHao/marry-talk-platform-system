@@ -13,6 +13,7 @@ export class GenerateAccessTokenUsecase implements UseCase<User, string> {
       userId: user.id as string,
       username: user.username,
       role: user.role as string,
+      roleEnabled: user.roleEnabled || true,
     });
   }
 }

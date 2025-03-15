@@ -12,6 +12,7 @@ interface UserProps {
   role?: Role;
   createdAt?: Date;
   updatedAt?: Date;
+  roleEnabled?: boolean;
 }
 
 export class User extends Entity<UserProps> {
@@ -76,6 +77,10 @@ export class User extends Entity<UserProps> {
 
   get updatedAt(): Date | undefined {
     return this.props.updatedAt;
+  }
+
+  get roleEnabled(): boolean | undefined {
+    return this.props.roleEnabled;
   }
 
   // if user is registrar they can change their role to MEMBER/THERAPIST if not just admin can change role

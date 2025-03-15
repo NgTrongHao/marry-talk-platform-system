@@ -14,6 +14,7 @@ export class PrismaUserMapper {
       role: PrismaUserMapper.mapPrismaRoleToDomain(entity.role),
       createdAt: entity.created_at,
       updatedAt: entity.updated_at,
+      roleEnabled: entity.role_enabled,
     });
   }
 

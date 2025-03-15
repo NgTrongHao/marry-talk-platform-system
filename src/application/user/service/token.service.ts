@@ -2,6 +2,7 @@ export interface TokenPayload {
   userId: string;
   username: string;
   role: string;
+  roleEnabled: boolean;
 }
 
 export interface TokenService {
