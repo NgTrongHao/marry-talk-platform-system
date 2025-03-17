@@ -4,10 +4,16 @@ import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { BookingRepository } from '../../../../core/domain/repository/booking.repository';
 import { IServicePackageManagementService } from '../../../service-package-management/service-package-management-service.interface';
 import { TherapistServiceInfoResponseDto } from '../../../service-package-management/service/dto/therapist-service-info-response.dto';
+import { UsecaseHandler } from '../../../usecase-handler.service';
+import { AddTherapySessionUsecase } from './add-therapy-session.usecase';
 
 export interface CreateBookingUsecaseCommand {
   therapistServiceId: string;
   userId: string;
+  addSession: {
+    sessionDate: Date;
+    startTime: string;
+  };
 }
 
 @Injectable()
@@ -15,6 +21,7 @@ export class CreateBookingUsecase
   implements UseCase<CreateBookingUsecaseCommand, Booking>
 {
   constructor(
+    private usecaseHandler: UsecaseHandler,
     @Inject('BookingRepository')
     private bookingRepository: BookingRepository,
     @Inject('IServicePackageManagementService')
@@ -40,6 +47,15 @@ export class CreateBookingUsecase
       userId: command.userId,
     });
 
-    return this.bookingRepository.save(booking);
+    const [savedBooking] = await Promise.all([
+      this.bookingRepository.save(booking),
+      this.usecaseHandler.execute(AddTherapySessionUsecase, {
+        bookingId: booking.id,
+        sessionDate: command.addSession.sessionDate,
+        startTime: command.addSession.startTime,
+      }),
+    ]);
+
+    return savedBooking;
   }
 }

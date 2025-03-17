@@ -6,6 +6,10 @@ export interface IBookingService {
   createBooking(param: {
     therapistServiceId: string;
     userId: string;
+    addSession: {
+      sessionDate: Date;
+      startTime: string;
+    };
   }): Promise<BookingInfoResponseDto>;
 
   getBookingById(bookingId: string): Promise<BookingInfoResponseDto>;

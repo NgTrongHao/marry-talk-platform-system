@@ -95,6 +95,11 @@ export class ValidateTherapySessionUsecase
         );
       });
 
+    existingSessions.filter((session) => {
+      // filter out the session that belong to expired booking
+      return session.booking.expiresAt! > new Date();
+    });
+
     for (const session of existingSessions) {
       if (
         TimeHelperUtils.isTimeOverlapping(

@@ -25,6 +25,7 @@ import { PaymentSupportService } from '../../application/booking/service/payment
 import { Request, Response } from 'express';
 import { ProcessBookingPaymentDto } from '../dto/booking/process-booking-payment-request.dto';
 import { IVnpayService } from '../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
+import { AddTherapySessionRequestDto } from '../dto/booking/add-therapy-session-request.dto';
 
 @Controller('booking')
 @ApiTags('Booking')
@@ -47,9 +48,14 @@ export class BookingController {
   async createBooking(
     @Param('therapistServiceId') therapistServiceId: string,
     @CurrentUser() info: TokenPayload,
+    @Body() request: AddTherapySessionRequestDto,
   ) {
     return await this.bookingService
-      .createBooking({ therapistServiceId, userId: info.userId })
+      .createBooking({
+        therapistServiceId,
+        userId: info.userId,
+        addSession: request,
+      })
       .then((result) => new BaseResponseDto(201, result));
   }
 

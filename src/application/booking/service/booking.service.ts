@@ -30,6 +30,10 @@ export class BookingService implements IBookingService {
   async createBooking(request: {
     therapistServiceId: string;
     userId: string;
+    addSession: {
+      sessionDate: Date;
+      startTime: string;
+    };
   }): Promise<BookingInfoResponseDto> {
     return await this.useCaseHandler
       .execute(CreateBookingUsecase, request)
