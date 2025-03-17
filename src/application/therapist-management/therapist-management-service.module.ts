@@ -13,9 +13,7 @@ import { FindApprovedTherapistUsecase } from './service/usecase/find-approved-th
 import { CountApprovedTherapistUsecase } from './service/usecase/count-approved-therapist.usecase';
 import { FindUnapprovedTherapistUsecase } from './service/usecase/find-unapproved-therapist.usecase';
 import { CountUnapprovedTherapistUsecase } from './service/usecase/count-unapproved-therapist.usecase';
-import { AddPayoutAccountUseCase } from './service/usecase/add-payout-account.usecase';
 import { GetTherapistBalanceUsecase } from './service/usecase/get-therapist-balance.usecase';
-import { GetTherapistPayoutAccountsUsecase } from './service/usecase/get-therapist-payout-accounts.usecase';
 
 const useCases = [
   ApproveTherapistTypeUsecase,
@@ -28,9 +26,7 @@ const useCases = [
   CountApprovedTherapistUsecase,
   FindUnapprovedTherapistUsecase,
   CountUnapprovedTherapistUsecase,
-  AddPayoutAccountUseCase,
   GetTherapistBalanceUsecase,
-  GetTherapistPayoutAccountsUsecase,
 ];
 
 @Module({

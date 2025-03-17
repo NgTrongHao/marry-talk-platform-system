@@ -36,8 +36,13 @@ export class ValidateTherapySessionUsecase
       therapistService.therapistId,
     );
 
+    const sessionDate = new Date(command.sessionDate);
+    if (isNaN(sessionDate.getTime())) {
+      throw new BadRequestException('Invalid session date');
+    }
+
     const dayOfWeek = numberToDayOfWeek[
-      command.sessionDate.getDay()
+      sessionDate.getDay()
     ] as keyof typeof therapistWorkingSchedule;
 
     const schedule = therapistWorkingSchedule[dayOfWeek];
@@ -87,7 +92,7 @@ export class ValidateTherapySessionUsecase
     startTime: string,
     endTime: string,
   ) {
-    const existingSessions = await this.sessionRepository
+    let existingSessions = await this.sessionRepository
       .findByTherapistAndDate(therapistId, sessionDate)
       .then((sessions) => {
         return sessions.filter(
@@ -95,9 +100,9 @@ export class ValidateTherapySessionUsecase
         );
       });
 
-    existingSessions.filter((session) => {
-      // filter out the session that belong to expired booking
-      return session.booking.expiresAt! > new Date();
+    existingSessions = existingSessions.filter((session) => {
+      const isExpired = new Date(session.booking.expiresAt!) <= new Date();
+      return !isExpired;
     });
 
     for (const session of existingSessions) {

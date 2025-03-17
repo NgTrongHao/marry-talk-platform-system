@@ -1,11 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Inject,
   Param,
   Patch,
-  Post,
   Put,
   Query,
   UseGuards,
@@ -24,7 +24,6 @@ import { CurrentUser } from '../../infrastructure/security/decorator/current-use
 import { TokenPayload } from '../../application/user/service/token.service';
 import { TherapistScheduleRequest } from '../dto/therapist/therapist-schedule-request.dto';
 import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
-import { TherapistPayoutAccountRequestDto } from '../dto/therapist/therapist-payout-account-request.dto';
 
 @Controller('therapists')
 @ApiTags('Therapist')
@@ -131,6 +130,9 @@ export class TherapistController {
   })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiQuery({ name: 'sessionDate', required: false, type: Date })
+  @ApiQuery({ name: 'startTime', required: false, type: String })
+  @ApiQuery({ name: 'endTime', required: false, type: String })
   @ApiResponseProperty({
     type: BaseResponseDto<{
       therapists: TherapistInfoResponseDto[];
@@ -144,9 +146,41 @@ export class TherapistController {
     @Param('therapyId') therapyId: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
+    @Query('sessionDate') sessionDate?: string,
+    @Query('startTime') startTime?: string,
+    @Query('endTime') endTime?: string,
   ) {
+    // check startTime and endTime with type '12:00'
+    const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+
+    if (startTime && !timeRegex.test(startTime)) {
+      throw new BadRequestException('Invalid startTime format. Expected HH:mm');
+    }
+
+    if (endTime && !timeRegex.test(endTime)) {
+      throw new BadRequestException('Invalid endTime format. Expected HH:mm');
+    }
+
+    if (startTime && endTime && startTime > endTime) {
+      throw new BadRequestException('startTime must be before endTime');
+    }
+
+    const parsedDate = sessionDate ? new Date(sessionDate) : undefined;
+    if (parsedDate && isNaN(parsedDate.getTime())) {
+      throw new BadRequestException(
+        'Invalid sessionDate format. Expected YYYY-MM-DD',
+      );
+    }
+
     return await this.therapistManagementService
-      .findTherapistWithTherapies({ therapyCategoryId: therapyId, page, limit })
+      .findTherapistWithTherapies({
+        therapyCategoryId: therapyId,
+        page,
+        limit,
+        sessionDate: parsedDate,
+        startTime,
+        endTime,
+      })
       .then((result) => new BaseResponseDto(200, result));
   }
 
@@ -177,37 +211,6 @@ export class TherapistController {
   async getTherapistWorkingHours(@Param('therapistId') therapistId: string) {
     return await this.therapistManagementService
       .getTherapistWorkingHours(therapistId)
-      .then((result) => new BaseResponseDto(200, result));
-  }
-
-  @Post('add-payout-account')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Add Payout Account REST API',
-    description:
-      'Add Payout Account REST API is used to add payout account for therapist.',
-  })
-  async addPayoutAccount(
-    @CurrentUser() info: TokenPayload,
-    @Body() request: TherapistPayoutAccountRequestDto,
-  ) {
-    return await this.therapistManagementService
-      .addPayoutAccount(info.userId, request)
-      .then((result) => new BaseResponseDto(200, result));
-  }
-
-  @Get('get-payout-accounts')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Get Payout Accounts REST API',
-    description:
-      'Get Payout Accounts REST API is used to get payout accounts for therapist.',
-  })
-  async getPayoutAccounts(@CurrentUser() info: TokenPayload) {
-    return await this.therapistManagementService
-      .getTherapistPayoutAccounts(info.userId)
       .then((result) => new BaseResponseDto(200, result));
   }
 

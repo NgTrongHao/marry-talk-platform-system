@@ -13,6 +13,7 @@ import { TherapistPayoutAccount } from '../../../../core/domain/entity/therapist
 export class PrismaTherapistMapper {
   static toDomain(
     entity: PrismaTherapist & { therapistType: PrismaTherapistType[] },
+    rating: number,
   ): Therapist {
     return Therapist.build({
       user: PrismaUserMapper.toDomain(entity),
@@ -30,6 +31,7 @@ export class PrismaTherapistMapper {
           enable: type.enabled,
         }),
       ),
+      rating: rating,
     });
   }
 
@@ -47,6 +49,7 @@ export class PrismaTherapistMapper {
     entity: PrismaTherapistPayoutAccount,
   ): TherapistPayoutAccount {
     return TherapistPayoutAccount.build({
+      id: entity.id,
       therapistId: entity.therapist_id,
       accountNumber: entity.account_number,
       bankCode: entity.bank_code ?? undefined,

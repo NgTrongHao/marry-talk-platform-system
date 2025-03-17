@@ -26,6 +26,7 @@ import {
 import { UsecaseHandler } from '../../usecase-handler.service';
 import { ITherapyManagementService } from '../../therapy-management/therapy-management-service.interface';
 import { TherapistTypeInfoResponseDto } from './dto/therapist-type-info-response.dto';
+import { GenerateAccessTokenUsecase } from './usecase/generate-access-token.usecase';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -116,7 +117,10 @@ export class UsersService implements IUsersService {
       phoneNumber?: string;
       avatarImageURL?: string;
     },
-  ): Promise<MemberInfoResponseDto> {
+  ): Promise<{
+    member: MemberInfoResponseDto;
+    accessToken: string;
+  }> {
     const member = await this.useCaseHandler.execute(
       CreateMemberProfileUsecase,
       {
@@ -129,7 +133,12 @@ export class UsersService implements IUsersService {
       throw new ConflictException('Member creation failed');
     }
 
-    return new MemberInfoResponseDto(member);
+    const accessToken = await this.useCaseHandler.execute(
+      GenerateAccessTokenUsecase,
+      member.user,
+    );
+
+    return { member: new MemberInfoResponseDto(member), accessToken };
   }
 
   async createTherapistProfile(
@@ -142,7 +151,10 @@ export class UsersService implements IUsersService {
       expertCertificates: string[];
       professionalExperience?: string;
     },
-  ): Promise<TherapistInfoResponseDto> {
+  ): Promise<{
+    therapist: TherapistInfoResponseDto;
+    accessToken: string;
+  }> {
     const therapist = await this.useCaseHandler.execute(
       CreateTherapistProfileUsecase,
       {
@@ -165,7 +177,15 @@ export class UsersService implements IUsersService {
       }),
     );
 
-    return new TherapistInfoResponseDto(therapist, therapistTypes);
+    const accessToken = await this.useCaseHandler.execute(
+      GenerateAccessTokenUsecase,
+      therapist.user,
+    );
+
+    return {
+      therapist: new TherapistInfoResponseDto(therapist, therapistTypes),
+      accessToken,
+    };
   }
 
   async getUserProfileById(

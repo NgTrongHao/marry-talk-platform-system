@@ -28,10 +28,16 @@ export class PrismaTherapistRepository implements TherapistRepository {
         bio: therapist.bio ?? null,
         role_enabled: therapist.roleEnabled,
       },
-      include: { therapistType: true },
+      include: { therapistType: true, therapistBooking: true },
     });
 
-    return PrismaTherapistMapper.toDomain(savedUser);
+    // get rating by therapist bookings
+    const rating = savedUser.therapistBooking.reduce(
+      (prev, current) => prev + (current.rating ?? 0),
+      0,
+    );
+
+    return PrismaTherapistMapper.toDomain(savedUser, rating);
   }
 
   async getTherapistProfileByUsername(
@@ -39,11 +45,17 @@ export class PrismaTherapistRepository implements TherapistRepository {
   ): Promise<Therapist | null> {
     const user = await this.prisma.user.findUnique({
       where: { username },
-      include: { therapistType: true },
+      include: { therapistType: true, therapistBooking: true },
     });
 
-    // user and therapist-management type
-    return user ? PrismaTherapistMapper.toDomain(user) : null;
+    if (!user) return null;
+
+    const rating = user.therapistBooking.reduce(
+      (prev, current) => prev + (current.rating ?? 0),
+      0,
+    );
+
+    return PrismaTherapistMapper.toDomain(user, rating);
   }
 
   async createTherapyTypes(types: TherapistType[]): Promise<TherapistType[]> {
@@ -84,19 +96,36 @@ export class PrismaTherapistRepository implements TherapistRepository {
       },
       skip,
       take,
-      include: { therapistType: true },
+      include: { therapistType: true, therapistBooking: true },
     });
 
-    return therapists.map((therapist) => ({
-      therapist: PrismaTherapistMapper.toDomain(therapist),
-      therapistTypes: therapist.therapistType.map((type) =>
-        TherapistType.build({
-          therapistId: type.therapist_id,
-          therapyCategoryId: type.therapy_id,
-          enable: type.enabled,
-        }),
-      ),
-    }));
+    return therapists.map((therapist) => {
+      const rating = therapist.therapistBooking.reduce(
+        (prev, current) => prev + (current.rating ?? 0),
+        0,
+      );
+      return {
+        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapistTypes: therapist.therapistType.map((type) =>
+          TherapistType.build({
+            therapistId: type.therapist_id,
+            therapyCategoryId: type.therapy_id,
+            enable: type.enabled,
+          }),
+        ),
+      };
+    });
+
+    // return therapists.map((therapist) => ({
+    //   therapist: PrismaTherapistMapper.toDomain(therapist),
+    //   therapistTypes: therapist.therapistType.map((type) =>
+    //     TherapistType.build({
+    //       therapistId: type.therapist_id,
+    //       therapyCategoryId: type.therapy_id,
+    //       enable: type.enabled,
+    //     }),
+    //   ),
+    // }));
   }
 
   async getTherapistProfileById(
@@ -104,9 +133,17 @@ export class PrismaTherapistRepository implements TherapistRepository {
   ): Promise<Therapist | null> {
     const therapist = await this.prisma.user.findUnique({
       where: { user_id: therapistId },
-      include: { therapistType: true },
+      include: { therapistType: true, therapistBooking: true },
     });
-    return therapist ? PrismaTherapistMapper.toDomain(therapist) : null;
+
+    if (!therapist) return null;
+
+    const rating = therapist.therapistBooking.reduce(
+      (prev, current) => prev + (current.rating ?? 0),
+      0,
+    );
+
+    return PrismaTherapistMapper.toDomain(therapist, rating);
   }
 
   async approveTherapistProfile(id: string): Promise<void> {
@@ -183,18 +220,24 @@ export class PrismaTherapistRepository implements TherapistRepository {
       },
       skip,
       take,
-      include: { therapistType: true },
+      include: { therapistType: true, therapistBooking: true },
     });
-    return therapists.map((therapist) => ({
-      therapist: PrismaTherapistMapper.toDomain(therapist),
-      therapistTypes: therapist.therapistType.map((type) =>
-        TherapistType.build({
-          therapistId: type.therapist_id,
-          therapyCategoryId: type.therapy_id,
-          enable: type.enabled,
-        }),
-      ),
-    }));
+    return therapists.map((therapist) => {
+      const rating = therapist.therapistBooking.reduce(
+        (prev, current) => prev + (current.rating ?? 0),
+        0,
+      );
+      return {
+        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapistTypes: therapist.therapistType.map((type) =>
+          TherapistType.build({
+            therapistId: type.therapist_id,
+            therapyCategoryId: type.therapy_id,
+            enable: type.enabled,
+          }),
+        ),
+      };
+    });
   }
 
   countApprovedTherapist(therapyId: string | undefined): Promise<number> {
@@ -249,18 +292,25 @@ export class PrismaTherapistRepository implements TherapistRepository {
       take,
       include: {
         therapistType: true,
+        therapistBooking: true,
       },
     });
-    return therapists.map((therapist) => ({
-      therapist: PrismaTherapistMapper.toDomain(therapist),
-      therapistTypes: therapist.therapistType.map((type) =>
-        TherapistType.build({
-          therapistId: type.therapist_id,
-          therapyCategoryId: type.therapy_id,
-          enable: type.enabled,
-        }),
-      ),
-    }));
+    return therapists.map((therapist) => {
+      const rating = therapist.therapistBooking.reduce(
+        (prev, current) => prev + (current.rating ?? 0),
+        0,
+      );
+      return {
+        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapistTypes: therapist.therapistType.map((type) =>
+          TherapistType.build({
+            therapistId: type.therapist_id,
+            therapyCategoryId: type.therapy_id,
+            enable: type.enabled,
+          }),
+        ),
+      };
+    });
   }
 
   async saveTherapistBalance(
@@ -379,6 +429,20 @@ export class PrismaTherapistRepository implements TherapistRepository {
       })
       .then((result) =>
         result ? PrismaTherapistMapper.toTherapistBalanceDomain(result) : null,
+      );
+  }
+
+  async getTherapistPayoutAccountById(
+    payoutAccountId: string,
+  ): Promise<TherapistPayoutAccount | null> {
+    return this.prisma.therapistPayoutAccount
+      .findUnique({
+        where: { id: payoutAccountId },
+      })
+      .then((result) =>
+        result
+          ? PrismaTherapistMapper.toTherapistPayoutAccountDomain(result)
+          : null,
       );
   }
 }

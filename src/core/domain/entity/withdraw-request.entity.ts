@@ -7,7 +7,7 @@ interface WithdrawRequestProps {
   therapistId: string;
   amount: number;
   currency: string;
-  status: RequestStatus;
+  status?: RequestStatus;
   createdAt?: Date;
   updatedAt?: Date;
   payoutAccountId: string;
@@ -49,11 +49,23 @@ export class WithdrawRequest extends Entity<WithdrawRequestProps> {
     return this.props.currency;
   }
 
-  get status(): RequestStatus {
+  get status(): RequestStatus | undefined {
     return this.props.status;
   }
 
   get payoutAccountId(): string {
     return this.props.payoutAccountId;
+  }
+
+  get createdAt(): Date | undefined {
+    return this.props.createdAt;
+  }
+
+  get updatedAt(): Date | undefined {
+    return this.props.updatedAt;
+  }
+
+  set status(status: RequestStatus) {
+    this.props.status = status;
   }
 }

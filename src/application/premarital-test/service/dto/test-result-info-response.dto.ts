@@ -13,6 +13,8 @@ export class TestResultInfoResponseDto {
   }[];
   score: number;
   testDate: Date;
+  totalTestScore: number;
+  percentage: number;
 
   constructor(testResult: TestResult) {
     this.testId = testResult.testId;
@@ -27,5 +29,10 @@ export class TestResultInfoResponseDto {
     }));
     this.score = testResult.score;
     this.testDate = testResult.createdAt!;
+    this.totalTestScore = testResult.userResponses.reduce(
+      (totalScore, userResponse) => totalScore + userResponse.score,
+      0,
+    );
+    this.percentage = (this.score / this.totalTestScore) * 100;
   }
 }

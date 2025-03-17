@@ -73,4 +73,8 @@ export interface TherapistRepository {
   getTherapistPayoutAccount(
     accountId: string,
   ): Promise<TherapistPayoutAccount | null>;
+
+  getTherapistPayoutAccountById(
+    payoutAccountId: string,
+  ): Promise<TherapistPayoutAccount | null>;
 }
