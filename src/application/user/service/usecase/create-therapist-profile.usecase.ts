@@ -13,6 +13,7 @@ import { User } from '../../../../core/domain/entity/user.entity';
 import { UseCase } from '../../../usecase.interface';
 import { UsecaseHandler } from '../../../usecase-handler.service';
 import { CreateTherapistTypeUsecase } from './create-therapist-type.usecase';
+import { ITherapyManagementService } from '../../../therapy-management/therapy-management-service.interface';
 
 export interface CreateTherapistProfileUsecaseCommand {
   username: string;
@@ -36,6 +37,8 @@ export class CreateTherapistProfileUsecase
     private usecaseHandler: UsecaseHandler,
     @Inject('TherapistRepository')
     private therapistRepository: TherapistRepository,
+    @Inject('ITherapyManagementService')
+    private therapyManagementService: ITherapyManagementService,
   ) {}
 
   async execute(command: CreateTherapistProfileUsecaseCommand) {
@@ -46,6 +49,18 @@ export class CreateTherapistProfileUsecase
       throw new UnauthorizedException(
         'Only registrar can create therapist-management profile',
       );
+    }
+
+    for (const therapistType of command.additionalInfo.therapistTypes) {
+      if (
+        !(await this.therapyManagementService.getTherapyCategoryById({
+          id: therapistType,
+        }))
+      ) {
+        throw new BadRequestException(
+          `Therapist type ${therapistType} does not exist`,
+        );
+      }
     }
 
     if (user instanceof User) {
@@ -89,9 +104,10 @@ export class CreateTherapistProfileUsecase
         await this.usecaseHandler.execute(ChangeRoleUsecase, {
           userId: user.id!,
           role: Role.REGISTRAR,
+          isRollback: true,
         });
         throw new BadRequestException(
-          'Failed to create therapist-management profile' + error,
+          'Failed to create therapist profile' + error,
         );
       }
     }

@@ -12,6 +12,7 @@ interface TherapistProps {
   professionalExperience?: string;
   roleEnabled: boolean;
   therapistTypes: TherapistType[];
+  rating?: number;
 }
 
 export class Therapist extends Entity<TherapistProps> {
@@ -123,5 +124,9 @@ export class Therapist extends Entity<TherapistProps> {
 
   get therapistTypes(): TherapistType[] {
     return this.props.therapistTypes;
+  }
+
+  get rating(): number {
+    return this.props.rating || 0;
   }
 }

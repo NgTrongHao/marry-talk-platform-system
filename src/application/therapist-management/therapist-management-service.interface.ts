@@ -1,9 +1,7 @@
 import { TherapistInfoResponseDto } from '../user/service/dto/therapist-info-response.dto';
 import { WorkingHoursInfoDto } from './service/dto/working-hours-info.dto';
 import { DayOfWeek } from '../../core/domain/entity/enum/day-of-week.enum';
-import { TherapistPayoutAccount } from '../../core/domain/entity/therapist-payout-account.entity';
 import { TherapistBalanceInfoDto } from './service/dto/therapist-balance-info.dto';
-import { TherapistPayoutAccountInfoDto } from './service/dto/therapist-payout-account-info.dto';
 
 export interface ITherapistManagementService {
   approveTherapyCategory(param: {
@@ -21,6 +19,9 @@ export interface ITherapistManagementService {
     therapyCategoryId: string;
     page: number;
     limit: number;
+    sessionDate?: Date;
+    startTime?: string;
+    endTime?: string;
   }): Promise<{
     therapists: TherapistInfoResponseDto[];
     page: number;
@@ -64,18 +65,5 @@ export interface ITherapistManagementService {
     totalPages: number;
   }>;
 
-  addPayoutAccount(
-    userId: string,
-    request: {
-      accountNumber: string;
-      bankCode: string;
-      accountName: string;
-    },
-  ): Promise<TherapistPayoutAccount>;
-
   getTherapistBalance(therapistId: string): Promise<TherapistBalanceInfoDto>;
-
-  getTherapistPayoutAccounts(
-    therapistId: string,
-  ): Promise<TherapistPayoutAccountInfoDto[]>;
 }

@@ -87,7 +87,10 @@ export interface IUsersService {
       phoneNumber?: string;
       avatarImageURL?: string;
     },
-  ): Promise<MemberInfoResponseDto>;
+  ): Promise<{
+    member: MemberInfoResponseDto;
+    accessToken: string;
+  }>;
 
   /**
    * Create therapist-management profile
@@ -117,5 +120,8 @@ export interface IUsersService {
       professionalExperience?: string;
       therapistTypes: string[];
     },
-  ): Promise<TherapistInfoResponseDto>;
+  ): Promise<{
+    therapist: TherapistInfoResponseDto;
+    accessToken: string;
+  }>;
 }

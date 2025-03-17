@@ -10,6 +10,8 @@ import { PrismaServicePackageRepository } from './repository/prisma-service-pack
 import { PrismaBookingRepository } from './repository/prisma-booking.repository';
 import { PrismaPaymentTransactionRepository } from './repository/prisma-payment-transaction.repository';
 import { PrismaSessionRepository } from './repository/prisma-session.repository';
+import { PrismaWithdrawRequestRepository } from './repository/prisma-withdraw-request.repository';
+import { PrismaPayoutTransactionRepository } from './repository/prisma-payout-transaction.repository';
 
 @Module({
   providers: [
@@ -54,6 +56,14 @@ import { PrismaSessionRepository } from './repository/prisma-session.repository'
       provide: 'SessionRepository',
       useClass: PrismaSessionRepository,
     },
+    {
+      provide: 'WithdrawRequestRepository',
+      useClass: PrismaWithdrawRequestRepository,
+    },
+    {
+      provide: 'PayoutTransactionRepository',
+      useClass: PrismaPayoutTransactionRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -67,6 +77,8 @@ import { PrismaSessionRepository } from './repository/prisma-session.repository'
     'BookingRepository',
     'PaymentTransactionRepository',
     'SessionRepository',
+    'WithdrawRequestRepository',
+    'PayoutTransactionRepository',
   ],
 })
 export class PrismaModule {}

@@ -36,7 +36,14 @@ export class BookingService implements IBookingService {
     };
   }): Promise<BookingInfoResponseDto> {
     return await this.useCaseHandler
-      .execute(CreateBookingUsecase, request)
+      .execute(CreateBookingUsecase, {
+        therapistServiceId: request.therapistServiceId,
+        userId: request.userId,
+        addSession: {
+          sessionDate: new Date(request.addSession.sessionDate),
+          startTime: request.addSession.startTime,
+        },
+      })
       .then(async (result: Booking) => {
         const therapist = await this.userService.getUserById({
           userId: result.therapistId,

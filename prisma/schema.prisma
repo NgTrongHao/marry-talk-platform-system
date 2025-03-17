@@ -121,7 +121,7 @@ model Notification {
 
 model Therapy {
   therapy_id  String  @id @default(uuid())
-  title       String
+  title       String  @unique
   description String
   enabled     Boolean @default(true)
 

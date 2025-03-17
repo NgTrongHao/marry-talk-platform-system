@@ -83,6 +83,10 @@ export class User extends Entity<UserProps> {
     return this.props.roleEnabled;
   }
 
+  set role(role: Role) {
+    this.props.role = role;
+  }
+
   // if user is registrar they can change their role to MEMBER/THERAPIST if not just admin can change role
   setRole(newRole: Role) {
     if (this.role !== Role.ADMIN && this.role !== Role.REGISTRAR) {

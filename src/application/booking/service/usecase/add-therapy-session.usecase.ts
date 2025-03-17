@@ -1,6 +1,11 @@
 import { UseCase } from '../../../usecase.interface';
 import { Session } from '../../../../core/domain/entity/session.entity';
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { BookingRepository } from '../../../../core/domain/repository/booking.repository';
 import { SessionRepository } from '../../../../core/domain/repository/session.repository';
 import { UsecaseHandler } from '../../../usecase-handler.service';
@@ -30,6 +35,10 @@ export class AddTherapySessionUsecase
     );
     if (!booking) {
       throw new NotFoundException('Booking not found');
+    }
+
+    if (booking.expiresAt! < new Date()) {
+      throw new BadRequestException('Booking has expired');
     }
 
     await this.usecaseHandler.execute(ValidateTherapySessionUsecase, {

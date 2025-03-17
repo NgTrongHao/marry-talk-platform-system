@@ -47,14 +47,13 @@ export class CreateBookingUsecase
       userId: command.userId,
     });
 
-    const [savedBooking] = await Promise.all([
-      this.bookingRepository.save(booking),
-      this.usecaseHandler.execute(AddTherapySessionUsecase, {
-        bookingId: booking.id,
-        sessionDate: command.addSession.sessionDate,
-        startTime: command.addSession.startTime,
-      }),
-    ]);
+    const savedBooking = await this.bookingRepository.save(booking);
+
+    await this.usecaseHandler.execute(AddTherapySessionUsecase, {
+      bookingId: savedBooking.id,
+      sessionDate: command.addSession.sessionDate,
+      startTime: command.addSession.startTime,
+    });
 
     return savedBooking;
   }

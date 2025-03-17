@@ -20,6 +20,8 @@ import { BookingController } from './api/booking.controller';
 import { PaymentModule } from '../infrastructure/external/payment/payment.module';
 import { SessionController } from './api/session.controller';
 import { VnpayModule } from '../infrastructure/external/payment/vnPay/modules/vnpay.module';
+import { PayoutServiceModule } from '../application/payout/payout-service.module';
+import { PayoutController } from './api/payout.controller';
 
 @Module({
   imports: [
@@ -33,6 +35,7 @@ import { VnpayModule } from '../infrastructure/external/payment/vnPay/modules/vn
     BookingServiceModule,
     PaymentModule,
     VnpayModule,
+    PayoutServiceModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [
@@ -45,6 +48,7 @@ import { VnpayModule } from '../infrastructure/external/payment/vnPay/modules/vn
     ServicePackageController,
     BookingController,
     SessionController,
+    PayoutController,
   ],
 })
 export class AdapterModule {}

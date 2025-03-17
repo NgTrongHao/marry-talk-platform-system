@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsString, ValidateIf } from 'class-validator';
 
 export class TherapistPayoutAccountRequestDto {
   @ApiProperty()
@@ -12,5 +12,7 @@ export class TherapistPayoutAccountRequestDto {
   bankCode: string;
 
   @ApiProperty()
+  @ValidateIf((o: TherapistPayoutAccountRequestDto) => o.accountName != null)
+  @IsString()
   accountName: string;
 }
