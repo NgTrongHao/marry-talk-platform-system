@@ -30,6 +30,12 @@ export interface IUsersService {
     email?: string;
   }): Promise<boolean>;
 
+  getUserProfileById(
+    userId: string,
+  ): Promise<
+    UserInfoResponseDto | MemberInfoResponseDto | TherapistInfoResponseDto
+  >;
+
   /**
    * Get user by id
    * @param {GetUserByIdUsecaseCommand} request

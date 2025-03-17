@@ -167,4 +167,15 @@ export class UsersService implements IUsersService {
 
     return new TherapistInfoResponseDto(therapist, therapistTypes);
   }
+
+  async getUserProfileById(
+    userId: string,
+  ): Promise<
+    UserInfoResponseDto | MemberInfoResponseDto | TherapistInfoResponseDto
+  > {
+    const user = await this.useCaseHandler.execute(GetUserByIdUsecase, {
+      userId,
+    });
+    return this.getUserByUsername({ username: user.username });
+  }
 }

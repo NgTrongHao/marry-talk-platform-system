@@ -68,7 +68,7 @@ export class UserController {
   @ApiResponseProperty({ type: BaseResponseDto<UserInfoResponseDto> })
   async getUserByUserId(@Param('userId') userId: string) {
     return this.userService
-      .getUserById({ userId })
+      .getUserProfileById(userId)
       .then((result) => new BaseResponseDto(200, result));
   }
 
