@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Session } from '../../../../core/domain/entity/session.entity';
 import { PrismaSessionMapper } from '../mapper/prisma-session-mapper';
+import { ProgressStatus } from '../../../../core/domain/entity/enum/progress-status.enum';
 
 @Injectable()
 export class PrismaSessionRepository implements SessionRepository {
@@ -36,6 +37,7 @@ export class PrismaSessionRepository implements SessionRepository {
         session_date: session.sessionDate,
         start_time: session.startTime,
         end_time: session.endTime,
+        reported: session.reported,
       },
       create: {
         session_id: session.id,
@@ -53,6 +55,7 @@ export class PrismaSessionRepository implements SessionRepository {
         meeting_link: session.meetingUrl,
         start_time: session.startTime,
         end_time: session.endTime,
+        reported: session.reported,
       },
       include: {
         booking: {
@@ -122,5 +125,57 @@ export class PrismaSessionRepository implements SessionRepository {
       return PrismaSessionMapper.toDomain(result);
     }
     return null;
+  }
+
+  async getTherapySessionByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+    date: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<Session[]> {
+    return this.prisma.session
+      .findMany({
+        where: {
+          booking: {
+            user_id: userId,
+          },
+          ...(date ? { session_date: date } : {}),
+          ...(status ? { status: status } : {}),
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          booking: {
+            include: {
+              therapistService: {
+                include: {
+                  package: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          session_date: 'desc',
+        },
+      })
+      .then((results) =>
+        results.map((session) => PrismaSessionMapper.toDomain(session)),
+      );
+  }
+
+  async countTherapySessionByUserId(
+    userId: string,
+    date: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<number> {
+    return this.prisma.session.count({
+      where: {
+        user_id: userId,
+        session_date: date,
+        status: status,
+      },
+    });
   }
 }

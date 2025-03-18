@@ -3,6 +3,7 @@ import { BookingRepository } from '../../../../core/domain/repository/booking.re
 import { Booking } from '../../../../core/domain/entity/booking.entity';
 import { PrismaService } from '../prisma.service';
 import { PrismaBookingMapper } from '../mapper/prisma-booking-mapper';
+import { ProgressStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaBookingRepository implements BookingRepository {
@@ -55,5 +56,101 @@ export class PrismaBookingRepository implements BookingRepository {
         }
         return null;
       });
+  }
+
+  async getTherapistBookings(
+    therapistId: string,
+    page: number,
+    limit: number,
+    status: string | undefined,
+  ): Promise<Booking[]> {
+    return this.prisma.booking
+      .findMany({
+        where: {
+          therapist_id: therapistId,
+          status: status as ProgressStatus | undefined,
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          therapistService: {
+            include: {
+              package: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      })
+      .then((bookings) =>
+        bookings.map((booking) => PrismaBookingMapper.toDomain(booking)),
+      );
+  }
+
+  async getUserBookings(
+    userId: string,
+    page: number,
+    limit: number,
+    status: string | undefined,
+  ): Promise<Booking[]> {
+    return this.prisma.booking
+      .findMany({
+        where: {
+          user_id: userId,
+          status: status as ProgressStatus | undefined,
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          therapistService: {
+            include: {
+              package: true,
+            },
+          },
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+      })
+      .then((bookings) =>
+        bookings.map((booking) => PrismaBookingMapper.toDomain(booking)),
+      );
+  }
+
+  countTherapistBookings(
+    therapistId: string,
+    status: string | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
+  ): Promise<number> {
+    return this.prisma.booking.count({
+      where: {
+        therapist_id: therapistId,
+        status: status as ProgressStatus | undefined,
+        created_at: {
+          gte: from,
+          lte: to,
+        },
+      },
+    });
+  }
+
+  countUserBookings(
+    userId: string,
+    status: ProgressStatus | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
+  ): Promise<number> {
+    return this.prisma.booking.count({
+      where: {
+        user_id: userId,
+        status: status,
+        created_at: {
+          gte: from,
+          lte: to,
+        },
+      },
+    });
   }
 }

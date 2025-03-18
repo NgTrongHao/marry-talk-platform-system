@@ -31,4 +31,13 @@ export class PrismaQuestionMapper {
         ) || [],
     });
   }
+
+  static toAnswerOptionDomain(entity: PrismaAnswer): AnswerOption {
+    return AnswerOption.build({
+      id: entity.answer_id,
+      answer: entity.answer,
+      score: entity.score,
+      questionId: entity.question_id,
+    });
+  }
 }

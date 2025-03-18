@@ -3,6 +3,7 @@ import { QuestionRepository } from '../../../../core/domain/repository/question.
 import { PrismaService } from '../prisma.service';
 import { Question } from '../../../../core/domain/entity/question.entity';
 import { PrismaQuestionMapper } from '../mapper/prisma-question-mapper';
+import { AnswerOption } from '../../../../core/domain/entity/answer-option.entity';
 
 @Injectable()
 export class PrismaQuestionRepository implements QuestionRepository {
@@ -73,5 +74,34 @@ export class PrismaQuestionRepository implements QuestionRepository {
     return this.prisma.question.count({
       where: { premarital_test_id: testId },
     });
+  }
+
+  async findAnswerById(answerId: string): Promise<AnswerOption | null> {
+    return this.prisma.answer
+      .findUnique({
+        where: { answer_id: answerId },
+      })
+      .then((result) =>
+        result ? PrismaQuestionMapper.toAnswerOptionDomain(result) : null,
+      );
+  }
+
+  async saveAnswerOption(answer: AnswerOption): Promise<AnswerOption> {
+    return this.prisma.answer
+      .upsert({
+        where: { answer_id: answer.id },
+        update: {
+          answer: answer.answer,
+          score: answer.score,
+        },
+        create: {
+          question: {
+            connect: { question_id: answer.questionId },
+          },
+          answer: answer.answer,
+          score: answer.score,
+        },
+      })
+      .then((result) => PrismaQuestionMapper.toAnswerOptionDomain(result));
   }
 }

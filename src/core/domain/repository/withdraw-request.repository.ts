@@ -34,4 +34,6 @@ export interface WithdrawRequestRepository {
   ): Promise<number>;
 
   countAllWithdrawRequests(status: string | undefined): Promise<number>;
+
+  getLastWithdrawRequest(therapistId: string): Promise<WithdrawRequest | null>;
 }

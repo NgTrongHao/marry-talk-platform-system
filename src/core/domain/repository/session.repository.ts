@@ -1,4 +1,5 @@
 import { Session } from '../entity/session.entity';
+import { ProgressStatus } from '../entity/enum/progress-status.enum';
 
 export interface SessionRepository {
   save(session: Session): Promise<Session>;
@@ -11,4 +12,18 @@ export interface SessionRepository {
   ): Promise<Session[]>;
 
   findSessionById(sessionId: string): Promise<Session | null>;
+
+  getTherapySessionByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+    date: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<Session[]>;
+
+  countTherapySessionByUserId(
+    userId: string,
+    date: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<number>;
 }

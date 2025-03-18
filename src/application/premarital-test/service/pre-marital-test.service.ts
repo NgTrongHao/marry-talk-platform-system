@@ -25,6 +25,10 @@ import * as console from 'node:console';
 import { GetUserDoneTestsUsecase } from './usecase/get-user-done-tests.usecase';
 import { CountUserDoneTestsUsecase } from './usecase/count-user-done-tests.usecase';
 import { GetTestResultByIdUsecase } from './usecase/get-test-result-by-id.usecase';
+import { AnswerOptionInfoResponseDto } from './dto/answer-option-info-response.dto';
+import { UpdateAnswerUsecase } from './usecase/update-answer.usecase';
+import { UpdateTestUsecase } from './usecase/update-test.usecase';
+import { UpdateQuestionUsecase } from './usecase/update-question.usecase';
 
 @Injectable()
 export class PreMaritalTestService implements IPremaritalTestService {
@@ -235,5 +239,53 @@ export class PreMaritalTestService implements IPremaritalTestService {
     return await this.useCaseHandler
       .execute(GetTestResultByIdUsecase, resultId)
       .then((result) => new TestResultInfoResponseDto(result));
+  }
+
+  async updateAnswer(request: {
+    answerId: string;
+    answer: string;
+    score: number;
+  }): Promise<AnswerOptionInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(UpdateAnswerUsecase, request)
+      .then((result) => {
+        return new AnswerOptionInfoResponseDto(result);
+      });
+  }
+
+  async updateTest(
+    id: string,
+    request: {
+      name?: string;
+      description?: string;
+      therapyCategoryIds?: string[];
+    },
+  ): Promise<PreMaritalTestInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(UpdateTestUsecase, { testId: id, ...request })
+      .then(async (result) => {
+        return new PreMaritalTestInfoResponseDto(
+          result,
+          await Promise.all(
+            result.therapyCategories.map((therapy) =>
+              this.getTherapyCategoryById(therapy),
+            ),
+          ),
+        );
+      });
+  }
+
+  async updateQuestion(request: {
+    questionId: string;
+    name: string;
+  }): Promise<TestQuestionInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(UpdateQuestionUsecase, {
+        questionId: request.questionId,
+        questionName: request.name,
+      })
+      .then((result) => {
+        return new TestQuestionInfoResponseDto(result);
+      });
   }
 }

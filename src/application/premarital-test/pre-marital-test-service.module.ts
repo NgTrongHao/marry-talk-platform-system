@@ -15,6 +15,9 @@ import { SubmitTestUsecase } from './service/usecase/submit-test.usecase';
 import { GetUserDoneTestsUsecase } from './service/usecase/get-user-done-tests.usecase';
 import { CountUserDoneTestsUsecase } from './service/usecase/count-user-done-tests.usecase';
 import { GetTestResultByIdUsecase } from './service/usecase/get-test-result-by-id.usecase';
+import { UpdateAnswerUsecase } from './service/usecase/update-answer.usecase';
+import { UpdateTestUsecase } from './service/usecase/update-test.usecase';
+import { UpdateQuestionUsecase } from './service/usecase/update-question.usecase';
 
 const useCases = [
   CreateTestUsecase,
@@ -29,6 +32,9 @@ const useCases = [
   GetUserDoneTestsUsecase,
   CountUserDoneTestsUsecase,
   GetTestResultByIdUsecase,
+  UpdateAnswerUsecase,
+  UpdateTestUsecase,
+  UpdateQuestionUsecase,
 ];
 
 @Module({

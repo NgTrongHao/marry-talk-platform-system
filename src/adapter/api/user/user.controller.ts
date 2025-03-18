@@ -16,19 +16,19 @@ import {
   ApiResponseProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { IUsersService } from '../../application/user/users-service.interface';
-import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
-import { CurrentUser } from '../../infrastructure/security/decorator/current-user.decorator';
-import { TokenPayload } from '../../application/user/service/token.service';
-import { BaseResponseDto } from '../dto/base-response.dto';
-import { RoleAuthoriseGuard } from '../../infrastructure/security/guard/role-authorise.guard';
-import { AuthorRole } from '../../infrastructure/security/decorator/author-role.decorator';
-import { Role } from '../../core/domain/entity/enum/role.enum';
-import { CreateMemberProfileRequestDto } from '../dto/user/create-member-profile-request.dto';
-import { CreateTherapistProfileRequestDto } from '../dto/user/create-therapist-profile-request.dto';
-import { TherapistInfoResponseDto } from '../../application/user/service/dto/therapist-info-response.dto';
-import { MemberInfoResponseDto } from '../../application/user/service/dto/member-info-response.dto';
-import { UserInfoResponseDto } from '../../application/user/service/dto/user-info-response.dto';
+import { IUsersService } from '../../../application/user/users-service.interface';
+import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
+import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
+import { TokenPayload } from '../../../application/user/service/token.service';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { RoleAuthoriseGuard } from '../../../infrastructure/security/guard/role-authorise.guard';
+import { AuthorRole } from '../../../infrastructure/security/decorator/author-role.decorator';
+import { Role } from '../../../core/domain/entity/enum/role.enum';
+import { CreateMemberProfileRequestDto } from '../../dto/user/create-member-profile-request.dto';
+import { CreateTherapistProfileRequestDto } from '../../dto/user/create-therapist-profile-request.dto';
+import { TherapistInfoResponseDto } from '../../../application/user/service/dto/therapist-info-response.dto';
+import { MemberInfoResponseDto } from '../../../application/user/service/dto/member-info-response.dto';
+import { UserInfoResponseDto } from '../../../application/user/service/dto/user-info-response.dto';
 
 @Controller('users')
 @ApiTags('User')

@@ -66,4 +66,8 @@ export class Question extends Entity<QuestionProps> {
     }
     this.props.answerOptions.push(option);
   }
+
+  set questionText(value: string) {
+    this.props.questionText = value;
+  }
 }

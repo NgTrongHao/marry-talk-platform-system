@@ -16,10 +16,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IFirebaseService } from '../../infrastructure/external/firebase/firebase-service.interface';
+import { IFirebaseService } from '../../../infrastructure/external/firebase/firebase-service.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { BaseResponseDto } from '../dto/base-response.dto';
-import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
 
 @Controller('file-upload')
 @ApiTags('File Upload')

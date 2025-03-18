@@ -16,6 +16,10 @@ import { CountTherapistWithdrawRequestsUsecase } from './service/usecase/count-t
 import { GetPayoutTransactionByReferenceIdUsecase } from './service/usecase/get-payout-transaction-by-reference-id.usecase';
 import { CompletePayoutUsecase } from './service/usecase/complete-payout.usecase';
 import { GetWithdrawByIdUsecase } from './service/usecase/get-withdraw-by-id.usecase';
+import { BookingServiceModule } from '../booking/booking-service.module';
+import { CreateRefundRequestUsecase } from './service/usecase/create-refund-request.usecase';
+import { GetRefundRequestByReportIdUsecase } from './service/usecase/get-refund-request-by-report-id.usecase';
+import { CompleteRefundPayoutUsecase } from './service/usecase/complete-refund-payout.usecase';
 
 const useCases = [
   AddPayoutAccountUseCase,
@@ -31,10 +35,17 @@ const useCases = [
   GetPayoutTransactionByReferenceIdUsecase,
   CompletePayoutUsecase,
   GetWithdrawByIdUsecase,
+  CreateRefundRequestUsecase,
+  GetRefundRequestByReportIdUsecase,
+  CompleteRefundPayoutUsecase,
 ];
 
 @Module({
-  imports: [PersistenceModule, TherapistManagementServiceModule],
+  imports: [
+    PersistenceModule,
+    TherapistManagementServiceModule,
+    BookingServiceModule,
+  ],
   providers: [
     {
       provide: 'IPayoutService',

@@ -4,7 +4,7 @@ import { GetTherapistPayoutAccountsUsecase } from './usecase/get-therapist-payou
 import { AddPayoutAccountUseCase } from './usecase/add-payout-account.usecase';
 import { UsecaseHandler } from '../../usecase-handler.service';
 import { RequestTherapistWithdrawUsecase } from './usecase/request-therapist-withdraw.usecase';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { GetWithdrawRequestsByTherapistIdUsecase } from './usecase/get-withdraw-requests-by-therapist-id.usecase';
 import { WithdrawRequestInfoDto } from './dto/withdraw-request-info.dto';
 import { GetPayoutAccountByIdUsecase } from './usecase/get-payout-account-by-id.usecase';
@@ -20,10 +20,17 @@ import { TransactionType } from '../../../core/domain/entity/enum/transaction-ty
 import { PayoutTransaction } from '../../../core/domain/entity/payout-transaction.entity';
 import { CompletePayoutUsecase } from './usecase/complete-payout.usecase';
 import { ReferenceTransactionStatusEnum } from '../../../core/domain/entity/enum/reference-transaction-status.enum';
+import { RefundRequestInfoDto } from './dto/refund-request-info.dto';
+import { CreateRefundRequestUsecase } from './usecase/create-refund-request.usecase';
+import { IBookingService } from '../../booking/booking-service.interface';
+import { CompleteRefundPayoutUsecase } from './usecase/complete-refund-payout.usecase';
 
 @Injectable()
 export class PayoutService implements IPayoutService {
-  constructor(private usecaseHandler: UsecaseHandler) {}
+  constructor(
+    private usecaseHandler: UsecaseHandler,
+    @Inject('IBookingService') private readonly bookingService: IBookingService,
+  ) {}
 
   async addPayoutAccount(
     userId: string,
@@ -236,6 +243,50 @@ export class PayoutService implements IPayoutService {
               payoutType: TransactionType.WITHDRAW,
             },
           )) as PayoutTransaction | undefined,
+        );
+      });
+  }
+
+  async createRefundRequest(request: {
+    userId: string;
+    reportId: string;
+    accountNumber: string;
+    bankCode: string;
+  }): Promise<RefundRequestInfoDto> {
+    return this.usecaseHandler
+      .execute(CreateRefundRequestUsecase, request)
+      .then(async (refund) => {
+        return new RefundRequestInfoDto(
+          refund,
+          await this.bookingService.getSessionReportById(refund.reportId),
+        );
+      });
+  }
+
+  async completeRefundRequest(
+    refundId: string,
+    request: {
+      transactionType: TransactionType;
+      amount: number;
+      currency: string;
+      referenceTransactionId: string;
+      imageUrl: string;
+    },
+  ): Promise<RefundRequestInfoDto> {
+    return this.usecaseHandler
+      .execute(CompleteRefundPayoutUsecase, {
+        refundRequestId: refundId,
+        transactionId: request.referenceTransactionId,
+        amount: request.amount,
+        currency: request.currency,
+        transactionType: request.transactionType,
+        transactionStatus: ReferenceTransactionStatusEnum.COMPLETED,
+        imageUrl: request.imageUrl,
+      })
+      .then(async (refund) => {
+        return new RefundRequestInfoDto(
+          refund,
+          await this.bookingService.getSessionReportById(refund.reportId),
         );
       });
   }

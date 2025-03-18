@@ -16,55 +16,23 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { IPayoutService } from '../../application/payout/payout-service.interface';
-import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
-import { CurrentUser } from '../../infrastructure/security/decorator/current-user.decorator';
-import { TokenPayload } from '../../application/user/service/token.service';
-import { TherapistPayoutAccountRequestDto } from '../dto/therapist/therapist-payout-account-request.dto';
-import { BaseResponseDto } from '../dto/base-response.dto';
-import { CreateWithdrawRequestDto } from '../dto/payout/create-withdraw-request.dto';
-import { RequestStatus } from '../../core/domain/entity/enum/request-status.enum';
-import { CompletePayoutDto } from '../dto/payout/complete-payout.dto';
-import { TransactionType } from '../../core/domain/entity/enum/transaction-type.enum';
+import { IPayoutService } from '../../../application/payout/payout-service.interface';
+import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
+import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
+import { TokenPayload } from '../../../application/user/service/token.service';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { CreateWithdrawRequestDto } from '../../dto/payout/create-withdraw-request.dto';
+import { RequestStatus } from '../../../core/domain/entity/enum/request-status.enum';
+import { CompletePayoutDto } from '../../dto/payout/complete-payout.dto';
+import { TransactionType } from '../../../core/domain/entity/enum/transaction-type.enum';
 
 @Controller('payout')
-@ApiTags('Payout')
-export class PayoutController {
+@ApiTags('Payout - Withdraw')
+export class PayoutWithdrawController {
   constructor(
     @Inject('IPayoutService')
     private payoutService: IPayoutService,
   ) {}
-
-  @Post('add-payout-account')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Add Payout Account REST API',
-    description:
-      'Add Payout Account REST API is used to add payout account for therapist.',
-  })
-  async addPayoutAccount(
-    @CurrentUser() info: TokenPayload,
-    @Body() request: TherapistPayoutAccountRequestDto,
-  ) {
-    return await this.payoutService
-      .addPayoutAccount(info.userId, request)
-      .then((result) => new BaseResponseDto(200, result));
-  }
-
-  @Get('get-payout-accounts')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
-  @ApiOperation({
-    summary: 'Get Payout Accounts REST API',
-    description:
-      'Get Payout Accounts REST API is used to get payout accounts for therapist.',
-  })
-  async getPayoutAccounts(@CurrentUser() info: TokenPayload) {
-    return await this.payoutService
-      .getTherapistPayoutAccounts(info.userId)
-      .then((result) => new BaseResponseDto(200, result));
-  }
 
   @Post('withdraw')
   @UseGuards(JwtAuthGuard)
@@ -87,7 +55,7 @@ export class PayoutController {
         amount: request.amount,
         currency: request.currency,
       })
-      .then((result) => new BaseResponseDto(200, result));
+      .then((result) => new BaseResponseDto(201, result));
   }
 
   @Get('get-withdraw-requests/me')
@@ -126,6 +94,41 @@ export class PayoutController {
         status,
         payoutAccountId,
         therapistId: info.userId,
+      })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('get-withdraw-requests/:therapistId')
+  @ApiOperation({
+    summary: 'Get Withdraw Requests REST API',
+    description:
+      'Get Withdraw Requests REST API is used to get all withdraw requests.',
+  })
+  @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
+  @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
+  async getWithdrawRequests(
+    @Param('therapistId') therapistId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('status') status?: string,
+  ) {
+    if (
+      status &&
+      !Object.values(RequestStatus).includes(status as RequestStatus)
+    ) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: `Invalid status value: ${status}. Allowed values: ${Object.values(RequestStatus).join(', ')}`,
+        error: 'Bad Request',
+      });
+    }
+    return await this.payoutService
+      .getWithdrawRequestsByTherapistId({
+        page,
+        limit,
+        status,
+        therapistId,
       })
       .then((result) => new BaseResponseDto(200, result));
   }

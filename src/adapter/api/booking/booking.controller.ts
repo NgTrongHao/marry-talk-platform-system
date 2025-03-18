@@ -13,19 +13,21 @@ import {
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { IBookingService } from '../../application/booking/booking-service.interface';
-import { JwtAuthGuard } from '../../infrastructure/security/guard/jwt-auth.guard';
-import { BaseResponseDto } from '../dto/base-response.dto';
-import { CurrentUser } from '../../infrastructure/security/decorator/current-user.decorator';
-import { TokenPayload } from '../../application/user/service/token.service';
-import { PaymentSupportService } from '../../application/booking/service/payment-support.service';
+import { IBookingService } from '../../../application/booking/booking-service.interface';
+import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
+import { TokenPayload } from '../../../application/user/service/token.service';
+import { PaymentSupportService } from '../../../application/booking/service/payment-support.service';
 import { Request, Response } from 'express';
-import { ProcessBookingPaymentDto } from '../dto/booking/process-booking-payment-request.dto';
-import { IVnpayService } from '../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
-import { AddTherapySessionRequestDto } from '../dto/booking/add-therapy-session-request.dto';
+import { ProcessBookingPaymentDto } from '../../dto/booking/process-booking-payment-request.dto';
+import { IVnpayService } from '../../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
+import { AddTherapySessionRequestDto } from '../../dto/booking/add-therapy-session-request.dto';
+import {ProgressStatus} from "../../../core/domain/entity/enum/progress-status.enum";
 
 @Controller('booking')
 @ApiTags('Booking')
@@ -71,15 +73,26 @@ export class BookingController {
       .then((result) => new BaseResponseDto(200, result));
   }
 
-  @Get('vnpay/callback')
+  @Get('get-booking-by-user')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
-    summary: 'VNPay Callback REST API (FE do not call this API)',
-    description:
-      'VNPay Callback REST API is endpoint for VNPay callback (FE do not call this API)',
+    summary: 'Get Booking By User REST API',
+    description: 'Get Booking By User REST API is used to get booking by user.',
   })
-  async vnpayCallback(@Query() vnpayResponse: any, @Res() res: Response) {
-    const url = await this.paymentSupportService.paymentCallback(vnpayResponse);
-    return res.redirect(url);
+  @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
+  @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async getBookingByUser(
+    @CurrentUser() info: TokenPayload,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('status') status?: ProgressStatus,
+  ) {
+    return await this.bookingService
+      .getBookingByUser(info.userId, info.role, { page, limit, status })
+      .then((result) => new BaseResponseDto(200, result));
   }
 
   @Post('vnpay/process-booking-payment/:bookingId')
@@ -104,6 +117,17 @@ export class BookingController {
       ipAddress,
       returnUrl: request.returnUrl,
     });
+  }
+
+  @Get('vnpay/callback')
+  @ApiOperation({
+    summary: 'VNPay Callback REST API (FE do not call this API)',
+    description:
+      'VNPay Callback REST API is endpoint for VNPay callback (FE do not call this API)',
+  })
+  async vnpayCallback(@Query() vnpayResponse: any, @Res() res: Response) {
+    const url = await this.paymentSupportService.paymentCallback(vnpayResponse);
+    return res.redirect(url);
   }
 
   @Get('vnpay/get-all-banks')

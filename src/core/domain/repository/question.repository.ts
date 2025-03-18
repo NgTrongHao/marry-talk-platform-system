@@ -1,4 +1,5 @@
 import { Question } from '../entity/question.entity';
+import { AnswerOption } from '../entity/answer-option.entity';
 
 export interface QuestionRepository {
   save(question: Question): Promise<Question>;
@@ -12,4 +13,8 @@ export interface QuestionRepository {
   ): Promise<Question[]>;
 
   countQuestionsByTestId(testId: string): Promise<number>;
+
+  findAnswerById(answerId: string): Promise<AnswerOption | null>;
+
+  saveAnswerOption(answer: AnswerOption): Promise<AnswerOption>;
 }

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,11 +8,23 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { IBookingService } from '../../application/booking/booking-service.interface';
-import { AddTherapySessionRequestDto } from '../dto/booking/add-therapy-session-request.dto';
-import { BaseResponseDto } from '../dto/base-response.dto';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { IBookingService } from '../../../application/booking/booking-service.interface';
+import { AddTherapySessionRequestDto } from '../../dto/booking/add-therapy-session-request.dto';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
+import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
+import { TokenPayload } from '../../../application/user/service/token.service';
+import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status.enum';
+import { RequestStatus } from '../../../core/domain/entity/enum/request-status.enum';
 
 @Controller('session')
 @ApiTags('Therapy Session')
@@ -38,6 +51,47 @@ export class SessionController {
         startTime: request.startTime,
       })
       .then((result) => new BaseResponseDto(201, result));
+  }
+
+  @Get('get-my-therapy-sessions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get My Therapy Sessions REST API',
+    description:
+      'Get My Therapy Sessions REST API is used to get therapy sessions of therapist.',
+  })
+  @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
+  @ApiQuery({
+    name: 'date',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async getMyTherapySessions(
+    @CurrentUser() info: TokenPayload,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+    @Query('date') date?: string,
+    @Query('status') status?: string,
+  ) {
+    if (
+      status &&
+      !Object.values(ProgressStatus).includes(status as ProgressStatus)
+    ) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: `Invalid status value: ${status}. Allowed values: ${Object.values(RequestStatus).join(', ')}`,
+        error: 'Bad Request',
+      });
+    }
+    const parsedDate = date ? new Date(date) : undefined;
+
+    return await this.bookingService
+      .getTherapySessionsByUserId(info.userId, page, limit, parsedDate, status)
+      .then((result) => new BaseResponseDto(200, result));
   }
 
   @Get('get-sessions-by-booking-id/:bookingId')
