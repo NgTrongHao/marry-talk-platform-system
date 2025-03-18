@@ -82,6 +82,7 @@ model User {
   enable_status           Boolean   @default(true)
   role                    Role      @default(MEMBER)
   role_enabled            Boolean   @default(true)
+  rating                  Int?
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 

@@ -129,4 +129,8 @@ export class Therapist extends Entity<TherapistProps> {
   get rating(): number {
     return this.props.rating || 0;
   }
+
+  set rating(value: number) {
+    this.props.rating = value;
+  }
 }

@@ -34,6 +34,7 @@ import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status
 import { CountTherapistBookingsUsecase } from './usecase/count-therapist-bookings.usecase';
 import { CountMemberBookingsUsecase } from './usecase/count-member-bookings.usecase';
 import { GetTherapySessionByUserIdUsecase } from './usecase/get-therapy-session-by-user-id.usecase';
+import { RateBookingUsecase } from './usecase/rate-booking.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -357,6 +358,8 @@ export class BookingService implements IBookingService {
       page: number;
       limit: number;
       status: ProgressStatus | undefined;
+      fromDate: Date | undefined;
+      toDate: Date | undefined;
     },
   ): Promise<{
     bookings: BookingInfoResponseDto[];
@@ -375,6 +378,8 @@ export class BookingService implements IBookingService {
           page: param.page,
           limit: param.limit,
           status: param.status,
+          fromDate: param.fromDate,
+          toDate: param.toDate,
         },
       );
       total = await this.useCaseHandler.execute(CountTherapistBookingsUsecase, {
@@ -386,6 +391,8 @@ export class BookingService implements IBookingService {
         page: param.page,
         limit: param.limit,
         status: param.status,
+        fromDate: param.fromDate,
+        toDate: param.toDate,
       });
       total = await this.useCaseHandler.execute(CountMemberBookingsUsecase, {
         memberId: userId,
@@ -421,25 +428,76 @@ export class BookingService implements IBookingService {
     userId: string,
     page: number,
     limit: number,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: ProgressStatus | undefined,
-  ): Promise<SessionInfoResponseDto[]> {
+  ): Promise<{
+    sessions: SessionInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const total = await this.useCaseHandler.execute(
+      CountTherapistBookingsUsecase,
+      {
+        therapistId: userId,
+        from: from,
+        to: to,
+        status: status,
+      },
+    );
+    return {
+      sessions: await this.useCaseHandler
+        .execute(GetTherapySessionByUserIdUsecase, {
+          userId,
+          page,
+          limit,
+          from,
+          to,
+          status,
+        })
+        .then(async (results) => {
+          return Promise.all(
+            results.map(async (result) => {
+              return new SessionInfoResponseDto(
+                result,
+                await this.getBookingById(result.booking.id!),
+              );
+            }),
+          );
+        }),
+      page,
+      limit,
+      total: total,
+      totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  async rateBooking(
+    bookingId: string,
+    userId: string,
+    request: { rating: number },
+  ): Promise<BookingInfoResponseDto> {
     return this.useCaseHandler
-      .execute(GetTherapySessionByUserIdUsecase, {
-        userId,
-        page,
-        limit,
-        date,
-        status,
+      .execute(RateBookingUsecase, {
+        bookingId: bookingId,
+        userId: userId,
+        rating: request.rating,
       })
-      .then(async (results) => {
-        return Promise.all(
-          results.map(async (result) => {
-            return new SessionInfoResponseDto(
-              result,
-              await this.getBookingById(result.booking.id!),
-            );
-          }),
+      .then(async (result: Booking) => {
+        const therapist = await this.userService.getUserById({
+          userId: result.therapistId,
+        });
+        return new BookingInfoResponseDto(
+          result,
+          await this.userService.getUserById({ userId: result.userId }),
+          (await this.userService.getUserByUsername({
+            username: therapist.username,
+          })) as TherapistInfoResponseDto,
+          await this.servicePackageManagementService.getTherapistServiceById(
+            result.therapistServiceId,
+          ),
         );
       });
   }

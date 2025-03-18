@@ -17,13 +17,15 @@ export interface SessionRepository {
     userId: string,
     page: number,
     limit: number,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: ProgressStatus | undefined,
   ): Promise<Session[]>;
 
   countTherapySessionByUserId(
     userId: string,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: ProgressStatus | undefined,
   ): Promise<number>;
 }

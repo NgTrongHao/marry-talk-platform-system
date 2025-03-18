@@ -11,6 +11,8 @@ export interface BookingRepository {
     page: number,
     limit: number,
     status: ProgressStatus | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Booking[]>;
 
   countTherapistBookings(
@@ -24,7 +26,9 @@ export interface BookingRepository {
     userId: string,
     page: number,
     limit: number,
-    status: ProgressStatus | undefined,
+    status: string | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Booking[]>;
 
   countUserBookings(

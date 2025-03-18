@@ -11,6 +11,8 @@ interface GetMemberBookingsUsecaseCommand {
   page: number;
   limit: number;
   status: ProgressStatus | undefined;
+  fromDate: Date | undefined;
+  toDate: Date | undefined;
 }
 
 @Injectable()
@@ -36,6 +38,8 @@ export class GetMemberBookingsUsecase
       command.page,
       command.limit,
       command.status,
+      command.fromDate,
+      command.toDate,
     );
   }
 }

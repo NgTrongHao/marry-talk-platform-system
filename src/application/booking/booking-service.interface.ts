@@ -96,6 +96,8 @@ export interface IBookingService {
       page: number;
       limit: number;
       status: ProgressStatus | undefined;
+      fromDate: Date | undefined;
+      toDate: Date | undefined;
     },
   ): Promise<{
     bookings: BookingInfoResponseDto[];
@@ -109,7 +111,20 @@ export interface IBookingService {
     userId: string,
     page: number,
     limit: number,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: string | undefined,
-  ): Promise<SessionInfoResponseDto[]>;
+  ): Promise<{
+    sessions: SessionInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }>;
+
+  rateBooking(
+    bookingId: string,
+    userId: string,
+    request: { rating: number },
+  ): Promise<BookingInfoResponseDto>;
 }

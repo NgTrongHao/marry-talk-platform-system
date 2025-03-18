@@ -1,9 +1,11 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   Req,
@@ -27,7 +29,9 @@ import { Request, Response } from 'express';
 import { ProcessBookingPaymentDto } from '../../dto/booking/process-booking-payment-request.dto';
 import { IVnpayService } from '../../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
 import { AddTherapySessionRequestDto } from '../../dto/booking/add-therapy-session-request.dto';
-import {ProgressStatus} from "../../../core/domain/entity/enum/progress-status.enum";
+import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status.enum';
+import { RequestStatus } from '../../../core/domain/entity/enum/request-status.enum';
+import {RatingBookingRequestDto} from "../../dto/booking/rating-booking.request.dto";
 
 @Controller('booking')
 @ApiTags('Booking')
@@ -83,15 +87,68 @@ export class BookingController {
   @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
   @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
+  @ApiQuery({
+    name: 'fromDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({
+    name: 'toDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
   @ApiResponse({ status: 200, description: 'Success' })
   async getBookingByUser(
     @CurrentUser() info: TokenPayload,
     @Query('page') page: number,
     @Query('limit') limit: number,
     @Query('status') status?: ProgressStatus,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+  ) {
+    if (status && !Object.values(ProgressStatus).includes(status)) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: `Invalid status value: ${status}. Allowed values: ${Object.values(RequestStatus).join(', ')}`,
+        error: 'Bad Request',
+      });
+    }
+    const parsedFromDate = fromDate ? new Date(fromDate) : undefined;
+    const parsedToDate = toDate ? new Date(toDate) : undefined;
+
+    if (parsedFromDate && parsedToDate && parsedFromDate > parsedToDate) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'fromDate must be less than or equal to toDate',
+        error: 'Bad Request',
+      });
+    }
+    return await this.bookingService
+      .getBookingByUser(info.userId, info.role, {
+        page,
+        limit,
+        status,
+        fromDate: parsedFromDate,
+        toDate: parsedToDate,
+      })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Patch('rate-booking/:bookingId')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Rate Booking REST API',
+    description: 'Rate Booking REST API is used to rate a booking.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async rateBooking(
+    @Param('bookingId') bookingId: string,
+    @CurrentUser() info: TokenPayload,
+    @Body() request: RatingBookingRequestDto,
   ) {
     return await this.bookingService
-      .getBookingByUser(info.userId, info.role, { page, limit, status })
+      .rateBooking(bookingId, info.userId, request)
       .then((result) => new BaseResponseDto(200, result));
   }
 

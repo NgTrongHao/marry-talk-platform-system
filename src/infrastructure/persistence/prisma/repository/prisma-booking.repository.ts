@@ -14,6 +14,7 @@ export class PrismaBookingRepository implements BookingRepository {
       where: { booking_id: booking.id },
       update: {
         status: booking.progressStatus!,
+        rating: booking.rating,
       },
       create: {
         booking_id: booking.id,
@@ -63,12 +64,15 @@ export class PrismaBookingRepository implements BookingRepository {
     page: number,
     limit: number,
     status: string | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Booking[]> {
     return this.prisma.booking
       .findMany({
         where: {
           therapist_id: therapistId,
-          status: status as ProgressStatus | undefined,
+          ...(status ? { status: status as ProgressStatus } : {}),
+          ...(from && to ? { created_at: { gte: from, lte: to } } : {}),
         },
         take: limit,
         skip: (page - 1) * limit,
@@ -93,12 +97,15 @@ export class PrismaBookingRepository implements BookingRepository {
     page: number,
     limit: number,
     status: string | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Booking[]> {
     return this.prisma.booking
       .findMany({
         where: {
           user_id: userId,
-          status: status as ProgressStatus | undefined,
+          ...(status ? { status: status as ProgressStatus } : {}),
+          ...(from && to ? { created_at: { gte: from, lte: to } } : {}),
         },
         take: limit,
         skip: (page - 1) * limit,
@@ -127,29 +134,23 @@ export class PrismaBookingRepository implements BookingRepository {
     return this.prisma.booking.count({
       where: {
         therapist_id: therapistId,
-        status: status as ProgressStatus | undefined,
-        created_at: {
-          gte: from,
-          lte: to,
-        },
+        ...(status ? { status: status as ProgressStatus } : {}),
+        ...(from && to ? { created_at: { gte: from, lte: to } } : {}),
       },
     });
   }
 
   countUserBookings(
     userId: string,
-    status: ProgressStatus | undefined,
+    status: string | undefined,
     from: Date | undefined,
     to: Date | undefined,
   ): Promise<number> {
     return this.prisma.booking.count({
       where: {
         user_id: userId,
-        status: status,
-        created_at: {
-          gte: from,
-          lte: to,
-        },
+        ...(status ? { status: status as ProgressStatus } : {}),
+        ...(from && to ? { created_at: { gte: from, lte: to } } : {}),
       },
     });
   }

@@ -57,14 +57,19 @@ export class SessionController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
-    summary: 'Get My Therapy Sessions REST API',
+    summary: 'Get My Therapy Sessions REST API (for member)',
     description:
       'Get My Therapy Sessions REST API is used to get therapy sessions of therapist.',
   })
   @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
   @ApiQuery({
-    name: 'date',
+    name: 'fromDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({
+    name: 'toDate',
     required: false,
     description: 'Date in YYYY-MM-DD format',
   })
@@ -74,7 +79,8 @@ export class SessionController {
     @CurrentUser() info: TokenPayload,
     @Query('page') page: number,
     @Query('limit') limit: number,
-    @Query('date') date?: string,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
     @Query('status') status?: string,
   ) {
     if (
@@ -87,10 +93,27 @@ export class SessionController {
         error: 'Bad Request',
       });
     }
-    const parsedDate = date ? new Date(date) : undefined;
+
+    const parsedFromDate = fromDate ? new Date(fromDate) : undefined;
+    const parsedToDate = toDate ? new Date(toDate) : undefined;
+
+    if (parsedFromDate && parsedToDate && parsedFromDate > parsedToDate) {
+      throw new BadRequestException({
+        statusCode: 400,
+        message: 'fromDate must be less than or equal to toDate',
+        error: 'Bad Request',
+      });
+    }
 
     return await this.bookingService
-      .getTherapySessionsByUserId(info.userId, page, limit, parsedDate, status)
+      .getTherapySessionsByUserId(
+        info.userId,
+        page,
+        limit,
+        parsedFromDate,
+        parsedToDate,
+        status,
+      )
       .then((result) => new BaseResponseDto(200, result));
   }
 

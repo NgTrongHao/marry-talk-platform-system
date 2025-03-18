@@ -33,6 +33,7 @@ import { GetMemberBookingsUsecase } from './service/usecase/get-member-bookings.
 import { CountMemberBookingsUsecase } from './service/usecase/count-member-bookings.usecase';
 import { CountTherapistBookingsUsecase } from './service/usecase/count-therapist-bookings.usecase';
 import { GetTherapySessionByUserIdUsecase } from './service/usecase/get-therapy-session-by-user-id.usecase';
+import { RateBookingUsecase } from './service/usecase/rate-booking.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -62,6 +63,7 @@ const useCases = [
   CountMemberBookingsUsecase,
   CountTherapistBookingsUsecase,
   GetTherapySessionByUserIdUsecase,
+  RateBookingUsecase,
 ];
 
 @Module({

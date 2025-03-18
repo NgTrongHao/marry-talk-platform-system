@@ -131,7 +131,8 @@ export class PrismaSessionRepository implements SessionRepository {
     userId: string,
     page: number,
     limit: number,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: ProgressStatus | undefined,
   ): Promise<Session[]> {
     return this.prisma.session
@@ -140,8 +141,8 @@ export class PrismaSessionRepository implements SessionRepository {
           booking: {
             user_id: userId,
           },
-          ...(date ? { session_date: date } : {}),
           ...(status ? { status: status } : {}),
+          ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
         },
         take: limit,
         skip: (page - 1) * limit,
@@ -167,14 +168,15 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async countTherapySessionByUserId(
     userId: string,
-    date: Date | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
     status: ProgressStatus | undefined,
   ): Promise<number> {
     return this.prisma.session.count({
       where: {
         user_id: userId,
-        session_date: date,
-        status: status,
+        ...(status ? { status: status } : {}),
+        ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
       },
     });
   }
