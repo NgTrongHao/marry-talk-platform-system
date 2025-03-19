@@ -25,6 +25,23 @@ export class RequestTherapistWithdrawUsecase
   async execute(
     command: RequestTherapistWithdrawUsecaseCommand,
   ): Promise<WithdrawRequest> {
+    //get last withdraw request
+    const lastWithdrawRequest =
+      await this.withdrawRequestRepository.getLastWithdrawRequest(
+        command.therapistId,
+      );
+
+    //check if last withdraw request is not null and gap between last withdraw request and current date is less than 30 days
+    if (
+      lastWithdrawRequest &&
+      new Date().getTime() - lastWithdrawRequest.createdAt!.getTime() <
+        30 * 24 * 60 * 60 * 1000
+    ) {
+      throw new BadRequestException(
+        'You can only request for withdrawal once in 30 days',
+      );
+    }
+
     const therapistBalance =
       await this.therapistManagementService.getTherapistBalance(
         command.therapistId,

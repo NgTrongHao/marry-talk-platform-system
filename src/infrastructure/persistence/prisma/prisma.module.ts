@@ -12,6 +12,8 @@ import { PrismaPaymentTransactionRepository } from './repository/prisma-payment-
 import { PrismaSessionRepository } from './repository/prisma-session.repository';
 import { PrismaWithdrawRequestRepository } from './repository/prisma-withdraw-request.repository';
 import { PrismaPayoutTransactionRepository } from './repository/prisma-payout-transaction.repository';
+import { PrismaFlaggingReportRepository } from './repository/prisma-flagging-report.repository';
+import { PrismaRefundRequestRepository } from './repository/prisma-refund-request.repository';
 
 @Module({
   providers: [
@@ -64,6 +66,14 @@ import { PrismaPayoutTransactionRepository } from './repository/prisma-payout-tr
       provide: 'PayoutTransactionRepository',
       useClass: PrismaPayoutTransactionRepository,
     },
+    {
+      provide: 'FlaggingReportRepository',
+      useClass: PrismaFlaggingReportRepository,
+    },
+    {
+      provide: 'RefundRequestRepository',
+      useClass: PrismaRefundRequestRepository,
+    },
   ],
   exports: [
     PrismaService,
@@ -79,6 +89,8 @@ import { PrismaPayoutTransactionRepository } from './repository/prisma-payout-tr
     'SessionRepository',
     'WithdrawRequestRepository',
     'PayoutTransactionRepository',
+    'FlaggingReportRepository',
+    'RefundRequestRepository',
   ],
 })
 export class PrismaModule {}

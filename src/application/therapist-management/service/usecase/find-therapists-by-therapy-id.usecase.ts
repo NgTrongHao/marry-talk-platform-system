@@ -73,7 +73,9 @@ export class FindTherapistsByTherapyIdUsecase
       const bookedSessions =
         await this.sessionRepository.findByTherapistAndDate(
           therapist.user.id!,
-          command.sessionDate!,
+          undefined,
+          command.sessionDate,
+          undefined,
         );
 
       const isAvailable = this.hasAvailableTimeSlot(

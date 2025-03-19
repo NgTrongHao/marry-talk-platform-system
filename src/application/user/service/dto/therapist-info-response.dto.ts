@@ -28,6 +28,9 @@ export class TherapistInfoResponseDto extends UserInfoResponseDto {
   @ApiProperty()
   therapistTypes: TherapistTypeInfoResponseDto[];
 
+  @ApiProperty()
+  rating: number;
+
   constructor(
     therapist: Therapist,
     therapistTypes: TherapistTypeInfoResponseDto[],
@@ -41,5 +44,6 @@ export class TherapistInfoResponseDto extends UserInfoResponseDto {
     this.professionalExperience = therapist.professionalExperience;
     this.roleEnabled = therapist.roleEnabled;
     this.therapistTypes = therapistTypes;
+    this.rating = therapist.rating;
   }
 }

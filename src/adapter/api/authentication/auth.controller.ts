@@ -13,13 +13,13 @@ import {
   ApiResponseProperty,
   ApiTags,
 } from '@nestjs/swagger';
-import { RegisterUserRequestDto } from '../dto/user/register-user-request.dto';
-import { IAuthService } from '../../application/user/auth-service.interface';
-import { LoginRequestDto } from '../dto/user/login-request.dto';
-import { BaseResponseDto } from '../dto/base-response.dto';
-import { CreateUserUsecaseResponse } from '../../application/user/service/usecase/register-user.usecase';
-import { IFirebaseService } from '../../infrastructure/external/firebase/firebase-service.interface';
-import { LoginFirebaseRequestDto } from '../dto/user/login-firebase-request.dto';
+import { RegisterUserRequestDto } from '../../dto/user/register-user-request.dto';
+import { IAuthService } from '../../../application/user/auth-service.interface';
+import { LoginRequestDto } from '../../dto/user/login-request.dto';
+import { BaseResponseDto } from '../../dto/base-response.dto';
+import { CreateUserUsecaseResponse } from '../../../application/user/service/usecase/register-user.usecase';
+import { IFirebaseService } from '../../../infrastructure/external/firebase/firebase-service.interface';
+import { LoginFirebaseRequestDto } from '../../dto/user/login-firebase-request.dto';
 
 @Controller('auth')
 @ApiTags('Authentication')

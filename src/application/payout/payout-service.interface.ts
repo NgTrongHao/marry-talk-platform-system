@@ -1,6 +1,7 @@
 import { TherapistPayoutAccountInfoDto } from './service/dto/therapist-payout-account-info.dto';
 import { WithdrawRequestInfoDto } from './service/dto/withdraw-request-info.dto';
 import { TransactionType } from '../../core/domain/entity/enum/transaction-type.enum';
+import { RefundRequestInfoDto } from './service/dto/refund-request-info.dto';
 
 export interface IPayoutService {
   addPayoutAccount(
@@ -62,4 +63,22 @@ export interface IPayoutService {
     referenceTransactionId: string;
     imageUrl: string;
   }): Promise<WithdrawRequestInfoDto>;
+
+  createRefundRequest(request: {
+    userId: string;
+    reportId: string;
+    accountNumber: string;
+    bankCode: string;
+  }): Promise<RefundRequestInfoDto>;
+
+  completeRefundRequest(
+    refundId: string,
+    request: {
+      transactionType: TransactionType;
+      amount: number;
+      currency: string;
+      referenceTransactionId: string;
+      imageUrl: string;
+    },
+  ): Promise<RefundRequestInfoDto>;
 }

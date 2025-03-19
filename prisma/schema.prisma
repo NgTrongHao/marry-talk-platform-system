@@ -82,6 +82,7 @@ model User {
   enable_status           Boolean   @default(true)
   role                    Role      @default(MEMBER)
   role_enabled            Boolean   @default(true)
+  rating                  Int?
   created_at              DateTime  @default(now())
   updated_at              DateTime  @updatedAt
 
@@ -276,6 +277,7 @@ model Session {
   booking_id     String
   therapist_id   String?
   user_id        String?
+  reported       Boolean?
 
   booking     Booking       @relation("BookingSession", fields: [booking_id], references: [booking_id])
   therapist   User?         @relation("TherapistBooking", fields: [therapist_id], references: [user_id])
@@ -398,14 +400,16 @@ model TherapistBalance {
 }
 
 model RefundRequest {
-  request_id String        @id @default(uuid())
-  amount     Decimal
-  currency   String        @default("VND")
-  status     RequestStatus @default(PENDING)
-  created_at DateTime      @default(now())
-  updated_at DateTime      @updatedAt
-  user_id    String        @map("user_id") // UserEntity who request refund
-  report_id  String        @unique @map("report_id") // Report that user request refund
+  request_id     String        @id @default(uuid())
+  amount         Decimal
+  currency       String        @default("VND")
+  account_number String
+  bank_code      String
+  status         RequestStatus @default(PENDING)
+  created_at     DateTime      @default(now())
+  updated_at     DateTime      @updatedAt
+  user_id        String        @map("user_id") // UserEntity who request refund
+  report_id      String        @unique @map("report_id") // Report that user request refund
 
   user        User         @relation(fields: [user_id], references: [user_id])
   report      Report       @relation(fields: [report_id], references: [report_id])

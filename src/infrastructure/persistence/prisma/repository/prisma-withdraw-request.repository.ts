@@ -150,4 +150,24 @@ export class PrismaWithdrawRequestRepository
       },
     });
   }
+
+  async getLastWithdrawRequest(
+    therapistId: string,
+  ): Promise<WithdrawRequest | null> {
+    return this.prisma.withdrawRequest
+      .findMany({
+        where: {
+          therapist_id: therapistId,
+        },
+        orderBy: {
+          created_at: 'desc',
+        },
+        take: 1,
+      })
+      .then((results) =>
+        results.length > 0
+          ? PrismaWithdrawRequestMapper.toDomain(results[0])
+          : null,
+      );
+  }
 }

@@ -10,6 +10,7 @@ export class SessionInfoResponseDto {
   booking: BookingInfoResponseDto;
   startTime: string;
   endTime: string;
+  reported: boolean;
 
   constructor(session: Session, booking: BookingInfoResponseDto) {
     this.id = session.id!;
@@ -20,5 +21,6 @@ export class SessionInfoResponseDto {
     this.booking = booking;
     this.startTime = session.startTime;
     this.endTime = session.endTime;
+    this.reported = session.reported;
   }
 }

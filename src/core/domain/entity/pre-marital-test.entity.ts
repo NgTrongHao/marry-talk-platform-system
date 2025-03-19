@@ -63,4 +63,16 @@ export class PremaritalTest extends Entity<PremaritalTestProps> {
     }
     this.props.questions.push(question);
   }
+
+  set name(name: string) {
+    this.props.name = name;
+  }
+
+  set description(description: string) {
+    this.props.description = description;
+  }
+
+  set therapyCategories(therapyCategories: string[]) {
+    this.props.therapyCategories = therapyCategories;
+  }
 }

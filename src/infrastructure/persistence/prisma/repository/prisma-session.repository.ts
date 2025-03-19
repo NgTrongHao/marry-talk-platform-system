@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { Injectable } from '@nestjs/common';
 import { Session } from '../../../../core/domain/entity/session.entity';
 import { PrismaSessionMapper } from '../mapper/prisma-session-mapper';
+import { ProgressStatus } from '../../../../core/domain/entity/enum/progress-status.enum';
 
 @Injectable()
 export class PrismaSessionRepository implements SessionRepository {
@@ -36,6 +37,7 @@ export class PrismaSessionRepository implements SessionRepository {
         session_date: session.sessionDate,
         start_time: session.startTime,
         end_time: session.endTime,
+        reported: session.reported,
       },
       create: {
         session_id: session.id,
@@ -53,6 +55,7 @@ export class PrismaSessionRepository implements SessionRepository {
         meeting_link: session.meetingUrl,
         start_time: session.startTime,
         end_time: session.endTime,
+        reported: session.reported,
       },
       include: {
         booking: {
@@ -71,21 +74,15 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async findByTherapistAndDate(
     therapistId: string,
-    sessionDate: Date,
+    status: ProgressStatus | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Session[]> {
-    const startOfDay = new Date(sessionDate);
-    startOfDay.setUTCHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(sessionDate);
-    endOfDay.setUTCHours(23, 59, 59, 999);
-
     const sessions = await this.prisma.session.findMany({
       where: {
         therapist_id: therapistId,
-        session_date: {
-          gte: startOfDay,
-          lt: endOfDay,
-        },
+        ...(status ? { status } : {}),
+        ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
       },
       include: {
         booking: {
@@ -122,5 +119,59 @@ export class PrismaSessionRepository implements SessionRepository {
       return PrismaSessionMapper.toDomain(result);
     }
     return null;
+  }
+
+  async getTherapySessionByUserId(
+    userId: string,
+    page: number,
+    limit: number,
+    from: Date | undefined,
+    to: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<Session[]> {
+    return this.prisma.session
+      .findMany({
+        where: {
+          booking: {
+            user_id: userId,
+          },
+          ...(status ? { status: status } : {}),
+          ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          booking: {
+            include: {
+              therapistService: {
+                include: {
+                  package: true,
+                },
+              },
+            },
+          },
+        },
+        orderBy: {
+          session_date: 'desc',
+        },
+      })
+      .then((results) =>
+        results.map((session) => PrismaSessionMapper.toDomain(session)),
+      );
+  }
+
+  async countTherapySessionByUserId(
+    userId: string,
+    from: Date | undefined,
+    to: Date | undefined,
+    status: ProgressStatus | undefined,
+  ): Promise<number> {
+    return this.prisma.session.count({
+      where: {
+        user_id: userId,
+        ...(status ? { status: status } : {}),
+        ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
+      },
+    });
   }
 }

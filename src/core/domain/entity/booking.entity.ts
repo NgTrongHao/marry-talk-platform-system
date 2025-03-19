@@ -14,7 +14,7 @@ interface BookingProps {
   createdAt?: Date;
   updatedAt?: Date;
   expiresAt?: Date;
-
+  rating?: number;
   therapistService?: TherapistService;
 }
 
@@ -53,6 +53,18 @@ export class Booking extends Entity<BookingProps> {
         throw new ConflictException('Invalid status');
       }
     }
+    return new Booking(props);
+  }
+
+  public static rate(props: BookingProps, rating: number): Booking {
+    if (rating === undefined) {
+      throw new ConflictException('Rating is required');
+    } else if (rating < 1 || rating > 5) {
+      throw new ConflictException('Invalid rating');
+    } else if (rating % 1 !== 0) {
+      throw new ConflictException('Rating must be a whole number');
+    }
+    props.rating = rating;
     return new Booking(props);
   }
 
@@ -101,6 +113,10 @@ export class Booking extends Entity<BookingProps> {
     return this.props.expiresAt;
   }
 
+  get rating(): number | undefined {
+    return this.props.rating;
+  }
+
   get therapistService(): TherapistService | undefined {
     return this.props.therapistService;
   }
@@ -115,5 +131,9 @@ export class Booking extends Entity<BookingProps> {
 
   set therapistService(therapistService: TherapistService) {
     this.props.therapistService = therapistService;
+  }
+
+  set rating(rating: number) {
+    this.props.rating = rating;
   }
 }

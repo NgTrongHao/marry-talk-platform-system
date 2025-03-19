@@ -8,9 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
-import { ITherapyManagementService } from '../../application/therapy-management/therapy-management-service.interface';
-import { CreateTherapyCategoryRequestDto } from '../dto/therapy/create-therapy-category-request.dto';
-import { BaseResponseDto } from '../dto/base-response.dto';
+import { ITherapyManagementService } from '../../../application/therapy-management/therapy-management-service.interface';
+import { CreateTherapyCategoryRequestDto } from '../../dto/therapy/create-therapy-category-request.dto';
+import { BaseResponseDto } from '../../dto/base-response.dto';
 
 @Controller('therapies')
 @ApiTags('Therapy')

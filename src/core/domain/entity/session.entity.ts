@@ -11,6 +11,7 @@ interface SessionProps {
   booking: Booking;
   startTime: string;
   endTime: string;
+  reported?: boolean;
 }
 
 export class Session extends Entity<SessionProps> {
@@ -60,7 +61,15 @@ export class Session extends Entity<SessionProps> {
     return this.props.booking;
   }
 
+  get reported(): boolean {
+    return this.props.reported || false;
+  }
+
   set progressStatus(status: ProgressStatus) {
     this.props.progressStatus = status;
+  }
+
+  set reported(value: boolean) {
+    this.props.reported = value;
   }
 }

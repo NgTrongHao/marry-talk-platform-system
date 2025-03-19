@@ -29,6 +29,7 @@ export class PrismaSessionMapper {
       meetingUrl: entity.meeting_link,
       startTime: entity.start_time,
       endTime: entity.end_time,
+      reported: entity.reported ?? undefined,
     });
   }
 }

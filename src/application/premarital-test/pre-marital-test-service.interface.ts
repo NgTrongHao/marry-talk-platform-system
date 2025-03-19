@@ -3,6 +3,7 @@ import { QuestionType } from '../../core/domain/entity/enum/question-type.enum';
 import { TestQuestionInfoResponseDto } from './service/dto/test-question-info-response.dto';
 import { SubmitTestUsecaseCommand } from './service/usecase/submit-test.usecase';
 import { TestResultInfoResponseDto } from './service/dto/test-result-info-response.dto';
+import { AnswerOptionInfoResponseDto } from './service/dto/answer-option-info-response.dto';
 
 export interface IPremaritalTestService {
   createTest(request: {
@@ -67,4 +68,24 @@ export interface IPremaritalTestService {
   }>;
 
   getTestResultById(id: string): Promise<TestResultInfoResponseDto>;
+
+  updateAnswer(request: {
+    answerId: string;
+    answer: string;
+    score: number;
+  }): Promise<AnswerOptionInfoResponseDto>;
+
+  updateTest(
+    id: string,
+    request: {
+      name?: string;
+      description?: string;
+      therapyCategoryIds?: string[];
+    },
+  ): Promise<PreMaritalTestInfoResponseDto>;
+
+  updateQuestion(request: {
+    questionId: string;
+    name: string;
+  }): Promise<TestQuestionInfoResponseDto>;
 }

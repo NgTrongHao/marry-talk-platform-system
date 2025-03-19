@@ -38,4 +38,12 @@ export class AnswerOption extends Entity<AnswerOptionProps> {
   get questionId(): string {
     return this.props.questionId;
   }
+
+  set answer(answer: string) {
+    this.props.answer = answer;
+  }
+
+  set score(score: number) {
+    this.props.score = score;
+  }
 }

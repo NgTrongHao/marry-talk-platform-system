@@ -20,6 +20,20 @@ import { CancelTherapySessionUsecase } from './service/usecase/cancel-therapy-se
 import { GetTherapySessionsByTherapistIdUsecase } from './service/usecase/get-therapy-sessions-by-therapist-id.usecase';
 import { CompleteTherapySessionUsecase } from './service/usecase/complete-therapy-session.usecase';
 import { CompleteBookingUsecase } from './service/usecase/complete-booking.usecase';
+import { CreateSessionReportUsecase } from './service/usecase/create-session-report.usecase';
+import { GetTherapySessionByIdUsecase } from './service/usecase/get-therapy-session-by-id.usecase';
+import { GetAllSessionReportsUsecase } from './service/usecase/get-all-session-reports.usecase';
+import { ApproveSessionReportUsecase } from './service/usecase/approve-session-report.usecase';
+import { RejectSessionReportUsecase } from './service/usecase/reject-session-report.usecase';
+import { GetSessionReportsByUserIdUsecase } from './service/usecase/get-session-reports-by-user-id.usecase';
+import { GetTherapistSessionReportsUsecase } from './service/usecase/get-therapist-session-reports.usecase';
+import { GetSessionReportByIdUsecase } from './service/usecase/get-session-report-by-id.usecase';
+import { GetTherapistBookingsUsecase } from './service/usecase/get-therapist-bookings.usecase';
+import { GetMemberBookingsUsecase } from './service/usecase/get-member-bookings.usecase';
+import { CountMemberBookingsUsecase } from './service/usecase/count-member-bookings.usecase';
+import { CountTherapistBookingsUsecase } from './service/usecase/count-therapist-bookings.usecase';
+import { GetTherapySessionByUserIdUsecase } from './service/usecase/get-therapy-session-by-user-id.usecase';
+import { RateBookingUsecase } from './service/usecase/rate-booking.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -36,6 +50,20 @@ const useCases = [
   GetTherapySessionsByTherapistIdUsecase,
   CompleteTherapySessionUsecase,
   CompleteBookingUsecase,
+  CreateSessionReportUsecase,
+  GetTherapySessionByIdUsecase,
+  GetAllSessionReportsUsecase,
+  ApproveSessionReportUsecase,
+  RejectSessionReportUsecase,
+  GetSessionReportsByUserIdUsecase,
+  GetTherapistSessionReportsUsecase,
+  GetSessionReportByIdUsecase,
+  GetTherapistBookingsUsecase,
+  GetMemberBookingsUsecase,
+  CountMemberBookingsUsecase,
+  CountTherapistBookingsUsecase,
+  GetTherapySessionByUserIdUsecase,
+  RateBookingUsecase,
 ];
 
 @Module({
