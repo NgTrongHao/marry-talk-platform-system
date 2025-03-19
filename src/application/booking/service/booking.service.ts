@@ -179,12 +179,16 @@ export class BookingService implements IBookingService {
 
   async getTherapySessionsByTherapistId(
     therapistId: string,
-    date: Date,
+    status?: ProgressStatus,
+    from?: Date,
+    to?: Date,
   ): Promise<SessionInfoResponseDto[]> {
     return this.useCaseHandler
       .execute(GetTherapySessionsByTherapistIdUsecase, {
         therapistId,
-        date,
+        status,
+        from,
+        to,
       })
       .then(async (results) => {
         return Promise.all(

@@ -19,7 +19,9 @@ export class CheckExistSessionInTimeUsecase implements UseCase<any, any> {
     const existingSessions =
       await this.sessionRepository.findByTherapistAndDate(
         command.therapistId,
+        undefined,
         command.sessionDate,
+        undefined,
       );
 
     for (const session of existingSessions) {

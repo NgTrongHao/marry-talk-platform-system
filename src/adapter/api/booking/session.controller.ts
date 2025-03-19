@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Get,
@@ -23,8 +22,7 @@ import { BaseResponseDto } from '../../dto/base-response.dto';
 import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.guard';
 import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
 import { TokenPayload } from '../../../application/user/service/token.service';
-import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status.enum';
-import { RequestStatus } from '../../../core/domain/entity/enum/request-status.enum';
+import { validateFilters } from '../../../application/shared/utils/filter-validator.util';
 
 @Controller('session')
 @ApiTags('Therapy Session')
@@ -53,7 +51,7 @@ export class SessionController {
       .then((result) => new BaseResponseDto(201, result));
   }
 
-  @Get('get-my-therapy-sessions')
+  @Get('/my-therapy-sessions')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiOperation({
@@ -83,27 +81,11 @@ export class SessionController {
     @Query('toDate') toDate?: string,
     @Query('status') status?: string,
   ) {
-    if (
-      status &&
-      !Object.values(ProgressStatus).includes(status as ProgressStatus)
-    ) {
-      throw new BadRequestException({
-        statusCode: 400,
-        message: `Invalid status value: ${status}. Allowed values: ${Object.values(RequestStatus).join(', ')}`,
-        error: 'Bad Request',
-      });
-    }
-
-    const parsedFromDate = fromDate ? new Date(fromDate) : undefined;
-    const parsedToDate = toDate ? new Date(toDate) : undefined;
-
-    if (parsedFromDate && parsedToDate && parsedFromDate > parsedToDate) {
-      throw new BadRequestException({
-        statusCode: 400,
-        message: 'fromDate must be less than or equal to toDate',
-        error: 'Bad Request',
-      });
-    }
+    const { parsedFromDate, parsedToDate } = validateFilters(
+      status,
+      fromDate,
+      toDate,
+    );
 
     return await this.bookingService
       .getTherapySessionsByUserId(
@@ -113,6 +95,48 @@ export class SessionController {
         parsedFromDate,
         parsedToDate,
         status,
+      )
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Get('therapist/my-therapy-sessions')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Get My Therapy Sessions REST API (for therapist)',
+    description:
+      'Get My Therapy Sessions REST API is used to get therapy sessions of therapist.',
+  })
+  @ApiQuery({
+    name: 'fromDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({
+    name: 'toDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async getMyTherapySessionsForTherapist(
+    @CurrentUser() info: TokenPayload,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('status') status?: string,
+  ) {
+    const { parsedFromDate, parsedToDate } = validateFilters(
+      status,
+      fromDate,
+      toDate,
+    );
+
+    return await this.bookingService
+      .getTherapySessionsByTherapistId(
+        info.userId,
+        status,
+        parsedFromDate,
+        parsedToDate,
       )
       .then((result) => new BaseResponseDto(200, result));
   }
@@ -151,17 +175,35 @@ export class SessionController {
   })
   @ApiQuery({ name: 'therapist', required: true, description: 'Therapist ID' })
   @ApiQuery({
-    name: 'date',
+    name: 'fromDate',
     required: false,
-    description: 'Date in YYYY-MM-DD format (default: today)',
+    description: 'Date in YYYY-MM-DD format',
   })
+  @ApiQuery({
+    name: 'toDate',
+    required: false,
+    description: 'Date in YYYY-MM-DD format',
+  })
+  @ApiQuery({ name: 'status', required: false, example: 'PENDING' })
   @ApiResponse({ status: 200, description: 'Success' })
   async getTherapySessions(
     @Query('therapist') therapistId: string,
-    @Query('date') date?: Date,
+    @Query('fromDate') fromDate?: string,
+    @Query('toDate') toDate?: string,
+    @Query('status') status?: string,
   ) {
+    const { parsedFromDate, parsedToDate } = validateFilters(
+      status,
+      fromDate,
+      toDate,
+    );
     return await this.bookingService
-      .getTherapySessionsByTherapistId(therapistId, date || new Date())
+      .getTherapySessionsByTherapistId(
+        therapistId,
+        status,
+        parsedFromDate,
+        parsedToDate,
+      )
       .then((result) => new BaseResponseDto(200, result));
   }
 

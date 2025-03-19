@@ -8,7 +8,9 @@ export interface SessionRepository {
 
   findByTherapistAndDate(
     therapistId: string,
-    sessionDate: Date,
+    status: ProgressStatus | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Session[]>;
 
   findSessionById(sessionId: string): Promise<Session | null>;

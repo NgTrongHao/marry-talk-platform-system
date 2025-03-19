@@ -74,21 +74,15 @@ export class PrismaSessionRepository implements SessionRepository {
 
   async findByTherapistAndDate(
     therapistId: string,
-    sessionDate: Date,
+    status: ProgressStatus | undefined,
+    from: Date | undefined,
+    to: Date | undefined,
   ): Promise<Session[]> {
-    const startOfDay = new Date(sessionDate);
-    startOfDay.setUTCHours(0, 0, 0, 0);
-
-    const endOfDay = new Date(sessionDate);
-    endOfDay.setUTCHours(23, 59, 59, 999);
-
     const sessions = await this.prisma.session.findMany({
       where: {
         therapist_id: therapistId,
-        session_date: {
-          gte: startOfDay,
-          lt: endOfDay,
-        },
+        ...(status ? { status } : {}),
+        ...(from && to ? { session_date: { gte: from, lte: to } } : {}),
       },
       include: {
         booking: {
