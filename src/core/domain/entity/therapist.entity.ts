@@ -133,4 +133,42 @@ export class Therapist extends Entity<TherapistProps> {
   set rating(value: number) {
     this.props.rating = value;
   }
+
+  set birthdate(birthdate: Date) {
+    this.props.birthdate = birthdate;
+  }
+
+  set phoneNumber(phoneNumber: string) {
+    this.props.phoneNumber = phoneNumber;
+  }
+
+  set avatarImageURL(avatarImageURL: string) {
+    this.props.avatarImageURL = avatarImageURL;
+  }
+
+  set bio(bio: string) {
+    this.props.bio = bio;
+  }
+
+  set expertCertificates(expertCertificates: string[]) {
+    this.props.expertCertificates = expertCertificates;
+  }
+
+  set professionalExperience(professionalExperience: string) {
+    this.props.professionalExperience = professionalExperience;
+  }
+
+  set roleEnabled(roleEnabled: boolean) {
+    this.props.roleEnabled = roleEnabled;
+  }
+
+  set therapistTypes(therapistTypes: string[]) {
+    this.props.therapistTypes = therapistTypes.map((type) =>
+      TherapistType.build({
+        therapyCategoryId: type,
+        therapistId: this.user.id!,
+        enable: true,
+      }),
+    );
+  }
 }

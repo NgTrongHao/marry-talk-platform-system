@@ -34,6 +34,7 @@ import { CountMemberBookingsUsecase } from './service/usecase/count-member-booki
 import { CountTherapistBookingsUsecase } from './service/usecase/count-therapist-bookings.usecase';
 import { GetTherapySessionByUserIdUsecase } from './service/usecase/get-therapy-session-by-user-id.usecase';
 import { RateBookingUsecase } from './service/usecase/rate-booking.usecase';
+import { CleanupExpiredSessionsUsecase } from './service/usecase/cleanup-expired-sessions.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -64,6 +65,7 @@ const useCases = [
   CountTherapistBookingsUsecase,
   GetTherapySessionByUserIdUsecase,
   RateBookingUsecase,
+  CleanupExpiredSessionsUsecase,
 ];
 
 @Module({

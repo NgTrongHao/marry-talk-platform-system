@@ -30,4 +30,8 @@ export interface SessionRepository {
     to: Date | undefined,
     status: ProgressStatus | undefined,
   ): Promise<number>;
+
+  deleteSession(sessionId: string): Promise<Session>;
+
+  deleteSessions(sessionIds: string[]): Promise<void>;
 }

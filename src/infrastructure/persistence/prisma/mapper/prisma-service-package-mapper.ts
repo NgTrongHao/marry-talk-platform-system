@@ -26,6 +26,7 @@ export class PrismaServicePackageMapper {
       timeInMinutes: entity.time_duration,
       description: entity.description,
       package: this.toDomain(entity.package),
+      enabled: entity.enabled,
     });
   }
 }

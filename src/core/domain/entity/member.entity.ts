@@ -72,4 +72,16 @@ export class Member extends Entity<MemberProps> {
   get avatarImageURL(): string | undefined {
     return this.props.avatarImageURL;
   }
+
+  set birthdate(birthdate: Date) {
+    this.props.birthdate = birthdate;
+  }
+
+  set phoneNumber(phoneNumber: string) {
+    this.props.phoneNumber = phoneNumber;
+  }
+
+  set avatarImageURL(avatarImageURL: string) {
+    this.props.avatarImageURL = avatarImageURL;
+  }
 }

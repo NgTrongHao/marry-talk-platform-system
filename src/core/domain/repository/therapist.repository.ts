@@ -5,11 +5,11 @@ import { TherapistBalance } from '../entity/therapist-balance.entity';
 import { TherapistPayoutAccount } from '../entity/therapist-payout-account.entity';
 
 export interface TherapistRepository {
-  createTherapistProfile(therapist: Therapist): Promise<Therapist>;
+  saveTherapistProfile(therapist: Therapist): Promise<Therapist>;
 
   getTherapistProfileByUsername(username: string): Promise<Therapist | null>;
 
-  createTherapyTypes(types: TherapistType[]): Promise<TherapistType[]>;
+  saveTherapyTypes(types: TherapistType[]): Promise<TherapistType[]>;
 
   findTherapistsByTherapyId(
     therapyId: string,

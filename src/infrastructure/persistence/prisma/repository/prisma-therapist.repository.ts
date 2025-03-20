@@ -16,7 +16,7 @@ import { TherapistPayoutAccount } from '../../../../core/domain/entity/therapist
 export class PrismaTherapistRepository implements TherapistRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createTherapistProfile(therapist: Therapist): Promise<Therapist> {
+  async saveTherapistProfile(therapist: Therapist): Promise<Therapist> {
     const savedUser = await this.prisma.user.update({
       where: { user_id: therapist.user.id },
       data: {
@@ -58,13 +58,21 @@ export class PrismaTherapistRepository implements TherapistRepository {
     return PrismaTherapistMapper.toDomain(user, rating);
   }
 
-  async createTherapyTypes(types: TherapistType[]): Promise<TherapistType[]> {
+  async saveTherapyTypes(types: TherapistType[]): Promise<TherapistType[]> {
     const therapistTypes = await this.prisma.$transaction(
       types.map((type) =>
-        this.prisma.therapistType.create({
-          data: {
-            therapy_id: type.therapyCategoryId,
+        this.prisma.therapistType.upsert({
+          where: {
+            therapist_id_therapy_id: {
+              therapist_id: type.therapistId,
+              therapy_id: type.therapyCategoryId,
+            },
+          },
+          update: { enabled: type.enable },
+          create: {
             therapist_id: type.therapistId,
+            therapy_id: type.therapyCategoryId,
+            enabled: type.enable,
           },
         }),
       ),

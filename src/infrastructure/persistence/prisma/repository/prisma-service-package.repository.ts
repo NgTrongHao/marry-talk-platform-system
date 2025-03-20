@@ -46,6 +46,8 @@ export class PrismaServicePackageRepository
   async saveTherapistService(
     service: TherapistService,
   ): Promise<TherapistService> {
+    console.info('service', service);
+    console.info('enabled', service.enabled);
     return this.prisma.therapistService
       .upsert({
         where: {
@@ -57,6 +59,7 @@ export class PrismaServicePackageRepository
           time_duration: service.timeInMinutes,
           description: service.description,
           package_id: service.package.id!,
+          enabled: service.enabled,
         },
         create: {
           therapist_service_id: service.id,
@@ -72,9 +75,10 @@ export class PrismaServicePackageRepository
           package: true,
         },
       })
-      .then((result) =>
-        PrismaServicePackageMapper.toTherapistServiceDomain(result),
-      );
+      .then((result) => {
+        console.info('result', result);
+        return PrismaServicePackageMapper.toTherapistServiceDomain(result);
+      });
   }
 
   async checkExistServicePackage(command: {

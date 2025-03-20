@@ -53,4 +53,8 @@ export interface IServicePackageManagementService {
   getTherapistServiceById(
     therapistServiceId: string,
   ): Promise<TherapistServiceInfoResponseDto>;
+
+  deleteTherapistService(
+    therapistServiceId: string,
+  ): Promise<TherapistServiceInfoResponseDto>;
 }

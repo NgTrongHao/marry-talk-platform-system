@@ -129,4 +129,6 @@ export interface IBookingService {
     userId: string,
     request: { rating: number },
   ): Promise<BookingInfoResponseDto>;
+
+  cleanupExpiredPendingSessionBookings(): Promise<void>;
 }

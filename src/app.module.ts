@@ -4,6 +4,7 @@ import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AdapterModule } from './adapter/adapter.module';
 import { HttpExceptionFilter } from './adapter/exception/http-exception.handler';
+import { SchedulerServiceModule } from './infrastructure/scheduler/scheduler-service.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { HttpExceptionFilter } from './adapter/exception/http-exception.handler'
     }),
     PersistenceModule,
     AdapterModule,
+    SchedulerServiceModule,
   ],
   controllers: [],
   providers: [HttpExceptionFilter],

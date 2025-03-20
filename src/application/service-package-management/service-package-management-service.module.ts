@@ -10,6 +10,8 @@ import { SetTherapistServicesWithTherapyUsecase } from './service/usecase/set-th
 import { CheckExistServicePackageUsecase } from './service/usecase/check-exist-service-package.usecase';
 import { GetTherapistServicesUsecase } from './service/usecase/get-therapist-services.usecase';
 import { GetTherapistServiceByIdUsecase } from './service/usecase/get-therapist-service-by-id.usecase';
+import { DisableTherapistServiceUsecase } from './service/usecase/disable-therapist-service.usecase';
+import { UpdateTherapistServiceUsecase } from './service/usecase/update-therapist-service.usecase';
 
 const useCases = [
   CreateServicePackageUsecase,
@@ -19,6 +21,8 @@ const useCases = [
   CheckExistServicePackageUsecase,
   GetTherapistServicesUsecase,
   GetTherapistServiceByIdUsecase,
+  DisableTherapistServiceUsecase,
+  UpdateTherapistServiceUsecase,
 ];
 
 @Module({

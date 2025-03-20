@@ -18,7 +18,7 @@ export class CreateTherapistTypeUsecase
   ) {}
 
   async execute(command: CreateTherapistTypeUsecaseCommand[]) {
-    return await this.therapistRepository.createTherapyTypes(
+    return await this.therapistRepository.saveTherapyTypes(
       command.map((type) =>
         TherapistType.build({
           therapistId: type.therapistId,

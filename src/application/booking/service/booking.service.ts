@@ -35,6 +35,7 @@ import { CountTherapistBookingsUsecase } from './usecase/count-therapist-booking
 import { CountMemberBookingsUsecase } from './usecase/count-member-bookings.usecase';
 import { GetTherapySessionByUserIdUsecase } from './usecase/get-therapy-session-by-user-id.usecase';
 import { RateBookingUsecase } from './usecase/rate-booking.usecase';
+import { CleanupExpiredSessionsUsecase } from './usecase/cleanup-expired-sessions.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -504,5 +505,9 @@ export class BookingService implements IBookingService {
           ),
         );
       });
+  }
+
+  async cleanupExpiredPendingSessionBookings(): Promise<void> {
+    await this.useCaseHandler.execute(CleanupExpiredSessionsUsecase, {});
   }
 }

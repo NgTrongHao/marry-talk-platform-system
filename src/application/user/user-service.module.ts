@@ -19,6 +19,8 @@ import { GetUserByEmailUsecase } from './service/usecase/get-user-by-email.useca
 import { UsecaseHandler } from '../usecase-handler.service';
 import { CreateTherapistTypeUsecase } from './service/usecase/create-therapist-type.usecase';
 import { TherapyManagementServiceModule } from '../therapy-management/therapy-management-service.module';
+import { UpdateMemberProfileUsecase } from './service/usecase/update-member-profile.usecase';
+import { UpdateTherapistProfileUsecase } from './service/usecase/update-therapist-profile.usecase';
 
 const useCases = [
   CreateUserUsecase,
@@ -35,6 +37,8 @@ const useCases = [
   CreateTherapistProfileUsecase,
   GetUserByEmailUsecase,
   CreateTherapistTypeUsecase,
+  UpdateMemberProfileUsecase,
+  UpdateTherapistProfileUsecase,
 ];
 
 @Module({

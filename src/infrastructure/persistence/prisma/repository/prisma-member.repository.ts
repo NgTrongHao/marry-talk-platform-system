@@ -8,7 +8,7 @@ import { PrismaMemberMapper } from '../mapper/prisma-member-mapper';
 export class PrismaMemberRepository implements MemberRepository {
   constructor(private prisma: PrismaService) {}
 
-  async createMemberProfile(member: Member): Promise<Member> {
+  async saveMemberProfile(member: Member): Promise<Member> {
     const updatedUser = await this.prisma.user.update({
       where: { user_id: member.user.id },
       data: {

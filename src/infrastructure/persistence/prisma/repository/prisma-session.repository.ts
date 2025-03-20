@@ -174,4 +174,35 @@ export class PrismaSessionRepository implements SessionRepository {
       },
     });
   }
+
+  async deleteSession(sessionId: string): Promise<Session> {
+    return this.prisma.session
+      .delete({
+        where: {
+          session_id: sessionId,
+        },
+        include: {
+          booking: {
+            include: {
+              therapistService: {
+                include: {
+                  package: true,
+                },
+              },
+            },
+          },
+        },
+      })
+      .then((result) => PrismaSessionMapper.toDomain(result));
+  }
+
+  async deleteSessions(sessionIds: string[]): Promise<void> {
+    await this.prisma.session.deleteMany({
+      where: {
+        session_id: {
+          in: sessionIds,
+        },
+      },
+    });
+  }
 }

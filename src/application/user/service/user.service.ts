@@ -27,6 +27,8 @@ import { UsecaseHandler } from '../../usecase-handler.service';
 import { ITherapyManagementService } from '../../therapy-management/therapy-management-service.interface';
 import { TherapistTypeInfoResponseDto } from './dto/therapist-type-info-response.dto';
 import { GenerateAccessTokenUsecase } from './usecase/generate-access-token.usecase';
+import { UpdateMemberProfileUsecase } from './usecase/update-member-profile.usecase';
+import { UpdateTherapistProfileUsecase } from './usecase/update-therapist-profile.usecase';
 
 @Injectable()
 export class UsersService implements IUsersService {
@@ -197,5 +199,54 @@ export class UsersService implements IUsersService {
       userId,
     });
     return this.getUserByUsername({ username: user.username });
+  }
+
+  async updateMemberProfile(
+    username: string,
+    request: {
+      birthdate?: Date;
+      phoneNumber?: string;
+      avatarImageURL?: string;
+    },
+  ): Promise<MemberInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(UpdateMemberProfileUsecase, {
+        username: username,
+        additionalInfo: request,
+      })
+      .then((memberInfo) => new MemberInfoResponseDto(memberInfo));
+  }
+
+  async updateTherapistProfile(
+    username: string,
+    request: {
+      birthdate?: Date;
+      phoneNumber?: string;
+      avatarImageURL?: string;
+      bio?: string;
+      expertCertificates: string[];
+      professionalExperience?: string;
+      therapistTypes: string[];
+    },
+  ): Promise<TherapistInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(UpdateTherapistProfileUsecase, {
+        username: username,
+        additionalInfo: request,
+      })
+      .then(async (therapistInfo) => {
+        return new TherapistInfoResponseDto(
+          therapistInfo,
+          await Promise.all(
+            therapistInfo.therapistTypes.map(async (type) => {
+              const therapy =
+                await this.therapyManagementService.getTherapyCategoryById({
+                  id: type.therapyCategoryId,
+                });
+              return new TherapistTypeInfoResponseDto(therapy, type.enable);
+            }),
+          ),
+        );
+      });
   }
 }

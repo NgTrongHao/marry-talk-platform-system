@@ -4,6 +4,7 @@ import {
   Get,
   Inject,
   Param,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -156,6 +157,46 @@ export class UserController {
   async countTotalUsers() {
     return this.userService
       .countTotalUsers()
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Patch('update-member-profile')
+  @UseGuards(JwtAuthGuard, RoleAuthoriseGuard)
+  @AuthorRole(Role.MEMBER)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update Member Profile REST API',
+    description:
+      'Update Member Profile REST API is used for member to update their profile.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponseProperty({ type: BaseResponseDto<MemberInfoResponseDto> })
+  async updateMemberProfile(
+    @CurrentUser() info: TokenPayload,
+    @Body() request: CreateMemberProfileRequestDto,
+  ) {
+    return this.userService
+      .updateMemberProfile(info.username, request)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Patch('update-therapist-profile')
+  @UseGuards(JwtAuthGuard, RoleAuthoriseGuard)
+  @AuthorRole(Role.THERAPIST)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update Therapist Profile REST API',
+    description:
+      'Update Therapist Profile REST API is used for therapist to update their profile.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponseProperty({ type: BaseResponseDto<TherapistInfoResponseDto> })
+  async updateTherapistProfile(
+    @CurrentUser() info: TokenPayload,
+    @Body() request: CreateTherapistProfileRequestDto,
+  ) {
+    return this.userService
+      .updateTherapistProfile(info.username, request)
       .then((result) => new BaseResponseDto(200, result));
   }
 }

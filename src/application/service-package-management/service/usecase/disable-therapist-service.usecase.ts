@@ -1,10 +1,10 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { UseCase } from '../../../usecase.interface';
 import { TherapistService } from '../../../../core/domain/entity/therapist-service.entity';
 import { ServicePackageRepository } from '../../../../core/domain/repository/service-package.repository';
 
 @Injectable()
-export class GetTherapistServiceByIdUsecase
+export class DisableTherapistServiceUsecase
   implements UseCase<string, TherapistService>
 {
   constructor(
@@ -12,16 +12,14 @@ export class GetTherapistServiceByIdUsecase
     private servicePackageRepository: ServicePackageRepository,
   ) {}
 
-  async execute(therapistServiceId: string): Promise<TherapistService> {
+  async execute(serviceId: string) {
     const service =
-      await this.servicePackageRepository.findTherapistServiceById(
-        therapistServiceId,
-      );
-
+      await this.servicePackageRepository.findTherapistServiceById(serviceId);
     if (!service) {
-      throw new NotFoundException('Therapist service not found');
+      throw new Error('Service not found');
     }
 
-    return service;
+    service.enabled = false;
+    return await this.servicePackageRepository.saveTherapistService(service);
   }
 }
