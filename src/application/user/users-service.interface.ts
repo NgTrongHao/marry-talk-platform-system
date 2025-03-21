@@ -124,4 +124,26 @@ export interface IUsersService {
     therapist: TherapistInfoResponseDto;
     accessToken: string;
   }>;
+
+  updateMemberProfile(
+    username: string,
+    request: {
+      birthdate?: Date;
+      phoneNumber?: string;
+      avatarImageURL?: string;
+    },
+  ): Promise<MemberInfoResponseDto>;
+
+  updateTherapistProfile(
+    username: string,
+    request: {
+      birthdate?: Date;
+      phoneNumber?: string;
+      avatarImageURL?: string;
+      bio?: string;
+      expertCertificates: string[];
+      professionalExperience?: string;
+      therapistTypes: string[];
+    },
+  ): Promise<TherapistInfoResponseDto>;
 }

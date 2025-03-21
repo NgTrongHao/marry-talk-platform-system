@@ -154,4 +154,26 @@ export class PrismaBookingRepository implements BookingRepository {
       },
     });
   }
+
+  async findAllExpiredPendingBookings(): Promise<Booking[]> {
+    return this.prisma.booking
+      .findMany({
+        where: {
+          status: ProgressStatus.PENDING,
+          expires_at: {
+            lt: new Date(),
+          },
+        },
+        include: {
+          therapistService: {
+            include: {
+              package: true,
+            },
+          },
+        },
+      })
+      .then((bookings) =>
+        bookings.map((booking) => PrismaBookingMapper.toDomain(booking)),
+      );
+  }
 }

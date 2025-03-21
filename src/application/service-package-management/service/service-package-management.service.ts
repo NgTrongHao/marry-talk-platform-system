@@ -14,6 +14,7 @@ import { ITherapyManagementService } from '../../therapy-management/therapy-mana
 import { UpdateTherapistServiceUsecase } from './usecase/update-therapist-service.usecase';
 import { GetTherapistServicesUsecase } from './usecase/get-therapist-services.usecase';
 import { GetTherapistServiceByIdUsecase } from './usecase/get-therapist-service-by-id.usecase';
+import { DisableTherapistServiceUsecase } from './usecase/disable-therapist-service.usecase';
 
 @Injectable()
 export class ServicePackageManagementService
@@ -160,5 +161,21 @@ export class ServicePackageManagementService
         id: result.therapyCategoryId,
       }),
     );
+  }
+
+  async deleteTherapistService(
+    therapistServiceId: string,
+  ): Promise<TherapistServiceInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(DisableTherapistServiceUsecase, therapistServiceId)
+      .then(
+        async (result) =>
+          new TherapistServiceInfoResponseDto(
+            result,
+            await this.therapyManagementService.getTherapyCategoryById({
+              id: result.therapyCategoryId,
+            }),
+          ),
+      );
   }
 }

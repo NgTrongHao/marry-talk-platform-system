@@ -37,4 +37,6 @@ export interface BookingRepository {
     from: Date | undefined,
     to: Date | undefined,
   ): Promise<number>;
+
+  findAllExpiredPendingBookings(): Promise<Booking[]>;
 }

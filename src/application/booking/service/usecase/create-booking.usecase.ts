@@ -39,6 +39,10 @@ export class CreateBookingUsecase
       throw new BadRequestException('Therapist service not found');
     }
 
+    if (!therapistService.enabled) {
+      throw new BadRequestException('Therapist service is disabled');
+    }
+
     const booking = Booking.create({
       therapistServiceId: therapistService.id,
       servicePackageId: therapistService.package.id,

@@ -29,6 +29,8 @@ import { TherapistApprovalController } from './api/therapist/therapist-approval.
 import { TherapistWorkingHoursController } from './api/therapist/therapist-working-hours.controller';
 import { SessionReportController } from './api/booking/session-report.controller';
 import { PayoutRefundController } from './api/payout/payout-refund.controller';
+import { BlogModule } from '../infrastructure/external/blog/blog.module';
+import { BlogController } from './api/blog/blog.controller';
 
 @Module({
   imports: [
@@ -43,6 +45,7 @@ import { PayoutRefundController } from './api/payout/payout-refund.controller';
     PaymentModule,
     VnpayModule,
     PayoutServiceModule,
+    BlogModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [
@@ -63,6 +66,7 @@ import { PayoutRefundController } from './api/payout/payout-refund.controller';
     TherapistWorkingHoursController,
     SessionReportController,
     PayoutRefundController,
+    BlogController,
   ],
 })
 export class AdapterModule {}

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -157,6 +158,27 @@ export class ServicePackageController {
         sessions,
         servicePackageId,
       })
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
+  @Delete('therapist/service-packages/:therapistServiceId')
+  @UseGuards(JwtAuthGuard, RoleAuthoriseGuard)
+  @AuthorRole(Role.THERAPIST)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete Therapist Service REST API',
+    description:
+      'Delete Therapist Service REST API is used by therapist to delete therapist service.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  @ApiResponseProperty({
+    type: BaseResponseDto<TherapistServiceInfoResponseDto>,
+  })
+  async deleteTherapistService(
+    @Param('therapistServiceId') therapistServiceId: string,
+  ) {
+    return await this.servicePackageManagementService
+      .deleteTherapistService(therapistServiceId)
       .then((result) => new BaseResponseDto(200, result));
   }
 }

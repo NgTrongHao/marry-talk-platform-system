@@ -55,7 +55,7 @@ export class CreateMemberProfileUsecase
           command.additionalInfo.avatarImageURL,
         );
 
-        return await this.memberRepository.createMemberProfile(member);
+        return await this.memberRepository.saveMemberProfile(member);
       } catch {
         // Roll back the role change
         await this.usecaseHandler.execute(ChangeRoleUsecase, {

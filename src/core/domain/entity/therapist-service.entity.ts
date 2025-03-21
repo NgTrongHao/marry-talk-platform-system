@@ -10,6 +10,7 @@ interface TherapistServiceProps {
   timeInMinutes: number;
   description: string;
   package: ServicePackage;
+  enabled?: boolean;
 }
 
 export class TherapistService extends Entity<TherapistServiceProps> {
@@ -60,6 +61,10 @@ export class TherapistService extends Entity<TherapistServiceProps> {
     return this.props.package;
   }
 
+  get enabled(): boolean | undefined {
+    return this.props.enabled;
+  }
+
   set price(price: number) {
     this.props.price = price;
   }
@@ -74,5 +79,9 @@ export class TherapistService extends Entity<TherapistServiceProps> {
 
   set description(description: string) {
     this.props.description = description;
+  }
+
+  set enabled(enable: boolean) {
+    this.props.enabled = enable;
   }
 }

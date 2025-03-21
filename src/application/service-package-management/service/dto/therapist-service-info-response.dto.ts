@@ -11,6 +11,7 @@ export class TherapistServiceInfoResponseDto {
   timeInMinutes: number;
   description: string;
   package: ServicePackageInfoResponseDto;
+  enabled: boolean;
 
   constructor(
     therapistService: TherapistService,
@@ -24,5 +25,6 @@ export class TherapistServiceInfoResponseDto {
     this.timeInMinutes = therapistService.timeInMinutes;
     this.description = therapistService.description;
     this.package = new ServicePackageInfoResponseDto(therapistService.package);
+    this.enabled = therapistService.enabled!;
   }
 }

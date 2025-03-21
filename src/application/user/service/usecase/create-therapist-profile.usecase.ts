@@ -91,7 +91,7 @@ export class CreateTherapistProfileUsecase
         // );
 
         const [savedTherapist] = await Promise.all([
-          this.therapistRepository.createTherapistProfile(therapist),
+          this.therapistRepository.saveTherapistProfile(therapist),
           this.usecaseHandler.execute(
             CreateTherapistTypeUsecase,
             therapist.therapistTypes,
