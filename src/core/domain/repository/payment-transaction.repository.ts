@@ -8,4 +8,9 @@ export interface PaymentTransactionRepository {
   findTransactionByReferenceId(
     referenceId: string,
   ): Promise<PaymentTransaction | null>;
+
+  getTotalAmount(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+  ): Promise<number>;
 }

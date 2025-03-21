@@ -41,21 +41,44 @@ export class AddTherapySessionUsecase
       throw new BadRequestException('Booking has expired');
     }
 
+    const existingSessions =
+      await this.sessionRepository.getSessionsByBookingId(booking.id!);
+
+    // check has any session reported
+    if (existingSessions.some((session) => session.reported)) {
+      throw new BadRequestException(
+        'You cannot create a new session because there is a reported session',
+      );
+    }
+
+    if (existingSessions.length > 0) {
+      const lastSession = existingSessions
+        .filter(
+          (session) => session.progressStatus !== ProgressStatus.CANCELLED,
+        )
+        .sort((a, b) => a.sessionNumber - b.sessionNumber) // sort by session number
+        .at(-1); // get last element
+
+      if (
+        lastSession &&
+        lastSession.progressStatus !== ProgressStatus.COMPLETED
+      ) {
+        throw new BadRequestException(
+          'You cannot create a new session until the previous session is completed',
+        );
+      }
+    }
+
     await this.usecaseHandler.execute(ValidateTherapySessionUsecase, {
       booking,
       ...command,
     });
 
     const sessionNumber =
-      (
-        await this.sessionRepository
-          .getSessionsByBookingId(booking.id!)
-          .then((sessions: Session[]) => {
-            return sessions.filter(
-              (session) => session.progressStatus !== ProgressStatus.CANCELLED,
-            );
-          })
+      existingSessions.filter(
+        (session) => session.progressStatus !== ProgressStatus.CANCELLED,
       ).length + 1;
+
     const endMinutes =
       TimeHelperUtils.convertTimeToMinutes(command.startTime) +
       booking.therapistService!.timeInMinutes;

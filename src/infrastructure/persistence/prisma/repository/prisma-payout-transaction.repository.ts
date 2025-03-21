@@ -4,6 +4,8 @@ import { PrismaService } from '../prisma.service';
 import { PayoutTransaction } from '../../../../core/domain/entity/payout-transaction.entity';
 import { PrismaPayoutMapper } from '../mapper/prisma-payout-mapper';
 import { TransactionType } from '../../../../core/domain/entity/enum/transaction-type.enum';
+import * as console from 'node:console';
+import { ProgressStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaPayoutTransactionRepository
@@ -96,5 +98,36 @@ export class PrismaPayoutTransactionRepository
           transaction ? PrismaPayoutMapper.toDomain(transaction) : null,
         );
     }
+  }
+
+  async getTotalAmount(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+  ): Promise<number> {
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+    const total = await this.prisma.transaction.aggregate({
+      _sum: { amount: true },
+      where: {
+        created_at: {
+          gte: fromDate ?? startOfMonth,
+          lte: toDate ?? endOfMonth,
+        },
+        status: ProgressStatus.COMPLETED,
+        type: {
+          in: [TransactionType.WITHDRAW, TransactionType.REFUND],
+        },
+      },
+    });
+
+    return Number(total._sum.amount ?? 0);
   }
 }

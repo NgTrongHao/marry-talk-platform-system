@@ -8,4 +8,9 @@ export interface PayoutTransactionRepository {
     referenceId: string,
     payoutType: TransactionType,
   ): Promise<PayoutTransaction | null>;
+
+  getTotalAmount(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+  ): Promise<number>;
 }

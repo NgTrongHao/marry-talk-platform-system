@@ -1,8 +1,8 @@
 export enum Role {
-  REGISTRAR = 'registrar',
-  ADMIN = 'admin',
-  MEMBER = 'member',
-  THERAPIST = 'therapist',
+  REGISTRAR = 'REGISTRAR',
+  ADMIN = 'ADMIN',
+  MEMBER = 'MEMBER',
+  THERAPIST = 'THERAPIST',
 }
 
 export function valueOfRole(role: string): Role {
