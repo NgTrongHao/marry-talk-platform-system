@@ -3,7 +3,12 @@ import { PrismaService } from '../prisma.service';
 import { PaymentTransaction } from '../../../../core/domain/entity/payment-transaction.entity';
 import { PrismaPaymentTransactionMapper } from '../mapper/prisma-payment-transaction-mapper';
 import { Injectable } from '@nestjs/common';
-import { TransactionStatus } from '@prisma/client';
+import {
+  ProgressStatus,
+  TransactionStatus,
+  TransactionType,
+} from '@prisma/client';
+import * as console from 'node:console';
 
 @Injectable()
 export class PrismaPaymentTransactionRepository
@@ -147,5 +152,36 @@ export class PrismaPaymentTransactionRepository
       return PrismaPaymentTransactionMapper.toDomain(result);
     }
     return null;
+  }
+
+  async getTotalAmount(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+  ): Promise<number> {
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+    console.info('Start of month', startOfMonth);
+    console.info('End of month', endOfMonth);
+    const total = await this.prisma.transaction.aggregate({
+      _sum: { amount: true },
+      where: {
+        created_at: {
+          gte: fromDate ?? startOfMonth,
+          lte: toDate ?? endOfMonth,
+        },
+        status: ProgressStatus.COMPLETED,
+        type: TransactionType.PAYMENT,
+      },
+    });
+
+    return Number(total._sum.amount ?? 0);
   }
 }

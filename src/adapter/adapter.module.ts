@@ -31,6 +31,8 @@ import { SessionReportController } from './api/booking/session-report.controller
 import { PayoutRefundController } from './api/payout/payout-refund.controller';
 import { BlogModule } from '../infrastructure/external/blog/blog.module';
 import { BlogController } from './api/blog/blog.controller';
+import { AdministrationController } from './api/administration/administration.controller';
+import { AdministrationServiceModule } from '../application/administration/administration-service.module';
 
 @Module({
   imports: [
@@ -46,6 +48,7 @@ import { BlogController } from './api/blog/blog.controller';
     VnpayModule,
     PayoutServiceModule,
     BlogModule,
+    AdministrationServiceModule,
   ],
   providers: [JwtAuthGuard, RoleAuthoriseGuard],
   controllers: [
@@ -67,6 +70,7 @@ import { BlogController } from './api/blog/blog.controller';
     SessionReportController,
     PayoutRefundController,
     BlogController,
+    AdministrationController,
   ],
 })
 export class AdapterModule {}

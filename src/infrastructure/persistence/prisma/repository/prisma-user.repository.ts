@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { User } from '../../../../core/domain/entity/user.entity';
 import { PrismaUserMapper } from '../mapper/prisma-user-mapper';
+import { Role } from '../../../../core/domain/entity/enum/role.enum';
 
 @Injectable()
 export class PrismaUserRepository implements UserRepository {
@@ -67,6 +68,33 @@ export class PrismaUserRepository implements UserRepository {
       take,
     });
     return users.map((user) => PrismaUserMapper.toDomain(user));
+  }
+
+  getTotalUsers(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+    role: Role | undefined,
+  ): Promise<number> {
+    const startOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      1,
+    );
+    const endOfMonth = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth() + 1,
+      0,
+    );
+
+    return this.prisma.user.count({
+      where: {
+        created_at: {
+          gte: fromDate ?? startOfMonth,
+          lte: toDate ?? endOfMonth,
+        },
+        role: role ?? undefined,
+      },
+    });
   }
 
   // async createMemberProfile(member: Member): Promise<Member> {

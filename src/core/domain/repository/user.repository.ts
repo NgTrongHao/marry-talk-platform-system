@@ -1,4 +1,5 @@
 import { User } from '../entity/user.entity';
+import { Role } from '../entity/enum/role.enum';
 
 export interface UserRepository {
   createUser(user: User): Promise<User>;
@@ -17,4 +18,10 @@ export interface UserRepository {
   ): Promise<number>;
 
   findAll(skip: number, limit: number): Promise<User[]>;
+
+  getTotalUsers(
+    fromDate: Date | undefined,
+    toDate: Date | undefined,
+    role: Role | undefined,
+  ): Promise<number>;
 }
