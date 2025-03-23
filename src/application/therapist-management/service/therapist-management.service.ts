@@ -111,7 +111,11 @@ export class TherapistManagementService implements ITherapistManagementService {
     return this.usecaseHandler.execute(
       GetTherapistWorkScheduleUsecase,
       therapistId,
-    );
+    ).then((workingHours) => {
+      return workingHours.map((workingHour) => {
+        return WorkingHoursInfoDto.fromEntity(workingHour);
+      });
+    });
   }
 
   async getAllApprovedTherapists(request: {
