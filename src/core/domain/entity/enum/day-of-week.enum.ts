@@ -15,7 +15,8 @@ export const dayOfWeekToNumber: Record<DayOfWeek, number> = {
   [DayOfWeek.THURSDAY]: 4,
   [DayOfWeek.FRIDAY]: 5,
   [DayOfWeek.SATURDAY]: 6,
-  [DayOfWeek.SUNDAY]: 7,
+  // [DayOfWeek.SUNDAY]: 7,
+  [DayOfWeek.SUNDAY]: 0,
 };
 
 export const numberToDayOfWeek: Record<number, DayOfWeek> = {
@@ -25,5 +26,6 @@ export const numberToDayOfWeek: Record<number, DayOfWeek> = {
   4: DayOfWeek.THURSDAY,
   5: DayOfWeek.FRIDAY,
   6: DayOfWeek.SATURDAY,
-  7: DayOfWeek.SUNDAY,
+  // 7: DayOfWeek.SUNDAY,
+  0: DayOfWeek.SUNDAY,
 };

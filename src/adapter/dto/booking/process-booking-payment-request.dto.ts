@@ -3,6 +3,6 @@ import { IsUrl } from 'class-validator';
 
 export class ProcessBookingPaymentDto {
   @ApiProperty({ example: 'https://your-return-url.com' })
-  @IsUrl()
+  @IsUrl({ require_tld: false })
   returnUrl: string;
 }

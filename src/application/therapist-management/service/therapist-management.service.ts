@@ -105,13 +105,16 @@ export class TherapistManagementService implements ITherapistManagementService {
       });
   }
 
-  getTherapistWorkingHours(
+  async getTherapistWorkingHours(
     therapistId: string,
   ): Promise<WorkingHoursInfoDto[]> {
-    return this.usecaseHandler.execute(
-      GetTherapistWorkScheduleUsecase,
-      therapistId,
-    );
+    return this.usecaseHandler
+      .execute(GetTherapistWorkScheduleUsecase, therapistId)
+      .then((workingHours) => {
+        return workingHours.map((workingHour) => {
+          return WorkingHoursInfoDto.fromEntity(workingHour);
+        });
+      });
   }
 
   async getAllApprovedTherapists(request: {

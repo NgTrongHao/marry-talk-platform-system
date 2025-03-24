@@ -93,7 +93,7 @@ export class ValidateTherapySessionUsecase
     endTime: string,
   ) {
     let existingSessions = await this.sessionRepository
-      .findByTherapistAndDate(therapistId, undefined, sessionDate, undefined)
+      .findByTherapistAndDate(therapistId, undefined, sessionDate, sessionDate)
       .then((sessions) => {
         return sessions.filter(
           (session) => session.progressStatus !== ProgressStatus.CANCELLED,

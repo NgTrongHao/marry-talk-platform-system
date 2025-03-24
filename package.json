@@ -24,6 +24,8 @@
     "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@google-apps/meet": "^0.6.0",
+    "@google-cloud/local-auth": "^2.1.0",
     "@nestjs/axios": "^4.0.0",
     "@nestjs/class-transformer": "^0.4.0",
     "@nestjs/class-validator": "^0.13.4",
@@ -41,6 +43,7 @@
     "class-validator": "^0.14.1",
     "date-fns": "^4.1.0",
     "firebase-admin": "^13.1.0",
+    "googleapis": "^148.0.0",
     "multer": "^1.4.5-lts.1",
     "nestjs-pino": "^4.3.0",
     "passport": "^0.7.0",

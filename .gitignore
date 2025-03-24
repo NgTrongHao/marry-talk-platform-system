@@ -58,3 +58,4 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # Key file for Google Cloud Service Account
 service-account.json
+marritalk-private-key.json
