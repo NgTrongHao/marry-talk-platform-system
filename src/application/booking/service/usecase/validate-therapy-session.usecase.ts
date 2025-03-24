@@ -35,20 +35,16 @@ export class ValidateTherapySessionUsecase
     const therapistWorkingSchedule = await this.getTherapistWorkingSchedule(
       therapistService.therapistId,
     );
-    console.log("therapistWorkingSchedule", therapistWorkingSchedule);
-    
+    console.log('therapistWorkingSchedule', therapistWorkingSchedule);
 
     const sessionDate = new Date(command.sessionDate);
     if (isNaN(sessionDate.getTime())) {
       throw new BadRequestException('Invalid session date');
     }
-  console.log("sessionDate", sessionDate.getDay());
- 
+
     const dayOfWeek = numberToDayOfWeek[
       sessionDate.getDay()
     ] as keyof typeof therapistWorkingSchedule;
-console.log("dayOfWeek", dayOfWeek );
-console.log("dayOfWeek[]", numberToDayOfWeek[ sessionDate.getDay()]);
 
     const schedule = therapistWorkingSchedule[dayOfWeek];
     if (!schedule) {
