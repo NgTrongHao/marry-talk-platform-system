@@ -131,4 +131,9 @@ export interface IBookingService {
   ): Promise<BookingInfoResponseDto>;
 
   cleanupExpiredPendingSessionBookings(): Promise<void>;
+
+  addMeetingUrlToSession(
+    sessionId: string,
+    meetingLink: string,
+  ): Promise<SessionInfoResponseDto>;
 }

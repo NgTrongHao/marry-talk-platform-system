@@ -72,4 +72,8 @@ export class Session extends Entity<SessionProps> {
   set reported(value: boolean) {
     this.props.reported = value;
   }
+
+  set meetingUrl(url: string) {
+    this.props.meetingUrl = url;
+  }
 }

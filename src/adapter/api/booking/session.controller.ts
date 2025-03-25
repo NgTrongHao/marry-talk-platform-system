@@ -23,6 +23,7 @@ import { JwtAuthGuard } from '../../../infrastructure/security/guard/jwt-auth.gu
 import { CurrentUser } from '../../../infrastructure/security/decorator/current-user.decorator';
 import { TokenPayload } from '../../../application/user/service/token.service';
 import { validateFilters } from '../../../application/shared/utils/filter-validator.util';
+import { AddMeetingUrlDto } from '../../dto/booking/add-meeting-url.dto';
 
 @Controller('session')
 @ApiTags('Therapy Session')
@@ -49,6 +50,22 @@ export class SessionController {
         startTime: request.startTime,
       })
       .then((result) => new BaseResponseDto(201, result));
+  }
+
+  @Patch('add-meeting-link-session/:sessionId')
+  @ApiOperation({
+    summary: 'Add Meeting Link Session REST API',
+    description:
+      'Add Meeting Link Session REST API is used to add a meeting link to a session.',
+  })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async addMeetingLinkSession(
+    @Param('sessionId') sessionId: string,
+    @Body() request: AddMeetingUrlDto,
+  ) {
+    return await this.bookingService
+      .addMeetingUrlToSession(sessionId, request.meetingLink)
+      .then((result) => new BaseResponseDto(200, result));
   }
 
   @Get('/my-therapy-sessions')

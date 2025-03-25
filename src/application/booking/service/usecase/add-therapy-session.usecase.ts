@@ -30,6 +30,21 @@ export class AddTherapySessionUsecase
   ) {}
 
   async execute(command: AddTherapySessionUsecaseCommand): Promise<Session> {
+    const now = new Date();
+    const sessionDate = new Date(command.sessionDate);
+
+    if (
+      sessionDate.toDateString() === now.toDateString() &&
+      TimeHelperUtils.convertTimeToMinutes(command.startTime) <=
+        TimeHelperUtils.convertTimeToMinutes(
+          `${now.getHours()}:${now.getMinutes()}`,
+        )
+    ) {
+      throw new BadRequestException(
+        'Start time must be in the future if session is today',
+      );
+    }
+
     const booking = await this.bookingRepository.findBookingById(
       command.bookingId,
     );

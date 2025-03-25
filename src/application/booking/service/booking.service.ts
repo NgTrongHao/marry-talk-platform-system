@@ -36,6 +36,7 @@ import { CountMemberBookingsUsecase } from './usecase/count-member-bookings.usec
 import { GetTherapySessionByUserIdUsecase } from './usecase/get-therapy-session-by-user-id.usecase';
 import { RateBookingUsecase } from './usecase/rate-booking.usecase';
 import { CleanupExpiredSessionsUsecase } from './usecase/cleanup-expired-sessions.usecase';
+import { AddMeetingLinkSessionUsecase } from './usecase/add-meeting-link-session.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -509,5 +510,22 @@ export class BookingService implements IBookingService {
 
   async cleanupExpiredPendingSessionBookings(): Promise<void> {
     await this.useCaseHandler.execute(CleanupExpiredSessionsUsecase, {});
+  }
+
+  async addMeetingUrlToSession(
+    sessionId: string,
+    meetingLink: string,
+  ): Promise<SessionInfoResponseDto> {
+    return this.useCaseHandler
+      .execute(AddMeetingLinkSessionUsecase, {
+        meetingLink: meetingLink,
+        sessionId: sessionId,
+      })
+      .then(async (result) => {
+        return new SessionInfoResponseDto(
+          result,
+          await this.getBookingById(result.booking.id!),
+        );
+      });
   }
 }
