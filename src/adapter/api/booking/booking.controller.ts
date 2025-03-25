@@ -30,7 +30,6 @@ import { ProcessBookingPaymentDto } from '../../dto/booking/process-booking-paym
 import { IVnpayService } from '../../../infrastructure/external/payment/vnPay/modules/vnpay.interface';
 import { AddTherapySessionRequestDto } from '../../dto/booking/add-therapy-session-request.dto';
 import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status.enum';
-import { RequestStatus } from '../../../core/domain/entity/enum/request-status.enum';
 import { RatingBookingRequestDto } from '../../dto/booking/rating-booking.request.dto';
 
 @Controller('booking')
@@ -109,7 +108,7 @@ export class BookingController {
     if (status && !Object.values(ProgressStatus).includes(status)) {
       throw new BadRequestException({
         statusCode: 400,
-        message: `Invalid status value: ${status}. Allowed values: ${Object.values(RequestStatus).join(', ')}`,
+        message: `Invalid status value: ${status}. Allowed values: ${Object.values(ProgressStatus).join(', ')}`,
         error: 'Bad Request',
       });
     }
