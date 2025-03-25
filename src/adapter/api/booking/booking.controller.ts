@@ -31,6 +31,7 @@ import { IVnpayService } from '../../../infrastructure/external/payment/vnPay/mo
 import { AddTherapySessionRequestDto } from '../../dto/booking/add-therapy-session-request.dto';
 import { ProgressStatus } from '../../../core/domain/entity/enum/progress-status.enum';
 import { RatingBookingRequestDto } from '../../dto/booking/rating-booking.request.dto';
+import { validateFilters } from '../../../application/shared/utils/filter-validator.util';
 
 @Controller('booking')
 @ApiTags('Booking')
@@ -105,15 +106,11 @@ export class BookingController {
     @Query('fromDate') fromDate?: string,
     @Query('toDate') toDate?: string,
   ) {
-    if (status && !Object.values(ProgressStatus).includes(status)) {
-      throw new BadRequestException({
-        statusCode: 400,
-        message: `Invalid status value: ${status}. Allowed values: ${Object.values(ProgressStatus).join(', ')}`,
-        error: 'Bad Request',
-      });
-    }
-    const parsedFromDate = fromDate ? new Date(fromDate) : undefined;
-    const parsedToDate = toDate ? new Date(toDate) : undefined;
+    const { parsedFromDate, parsedToDate } = validateFilters(
+      status,
+      fromDate,
+      toDate,
+    );
 
     if (parsedFromDate && parsedToDate && parsedFromDate > parsedToDate) {
       throw new BadRequestException({

@@ -20,6 +20,10 @@ export function validateFilters(
   const parsedFromDate = fromDate ? new Date(fromDate) : undefined;
   const parsedToDate = toDate ? new Date(toDate) : undefined;
 
+  if (parsedToDate) {
+    parsedToDate.setUTCHours(23, 59, 59, 999);
+  }
+
   if (parsedFromDate && parsedToDate && parsedFromDate > parsedToDate) {
     throw new BadRequestException({
       statusCode: 400,
