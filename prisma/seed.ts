@@ -7,7 +7,7 @@ async function main() {
   const adminEmail = 'admin@example.com';
   const adminUsername = 'admin';
   const hashedPassword =
-    '$2a$12$8oebdUvIwZ8y5ZKJPm7LJ.Yj5viGRL5tU1osAhijL41FK7L7cZMX2';
+    '$2a$12$5OtU8j72ECtZ6Bfz063eauVmLzsH2E6j486lsCKCf2EhD.zBdkAMa';
 
   await prisma.user.upsert({
     where: { username: adminUsername },
