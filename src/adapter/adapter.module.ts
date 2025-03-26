@@ -33,6 +33,7 @@ import { BlogModule } from '../infrastructure/external/blog/blog.module';
 import { BlogController } from './api/blog/blog.controller';
 import { AdministrationController } from './api/administration/administration.controller';
 import { AdministrationServiceModule } from '../application/administration/administration-service.module';
+import { PayoutAccountController } from './api/payout/payout-account.controller';
 
 @Module({
   imports: [
@@ -71,6 +72,7 @@ import { AdministrationServiceModule } from '../application/administration/admin
     PayoutRefundController,
     BlogController,
     AdministrationController,
+    PayoutAccountController,
   ],
 })
 export class AdapterModule {}
