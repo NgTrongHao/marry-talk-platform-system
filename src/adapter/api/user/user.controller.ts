@@ -59,8 +59,8 @@ export class UserController {
   }
 
   @Get('get-user-by-user-id/:userId')
-  @UseGuards(JwtAuthGuard)
-  @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  // @ApiBearerAuth()
   @ApiOperation({
     summary: 'Get User By UserId REST API',
     description: 'Get User By UserId REST API is used to get user by userId.',
