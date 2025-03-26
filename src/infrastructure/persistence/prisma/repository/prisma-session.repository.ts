@@ -38,6 +38,7 @@ export class PrismaSessionRepository implements SessionRepository {
         start_time: session.startTime,
         end_time: session.endTime,
         reported: session.reported,
+        meeting_link: session.meetingUrl,
       },
       create: {
         session_id: session.id,
