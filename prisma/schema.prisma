@@ -233,7 +233,7 @@ model TherapistService {
   package       ServicePackage @relation(fields: [package_id], references: [package_id])
   booking       Booking[]
 
-  @@unique([therapist_id, package_id])
+  @@unique([therapist_id, package_id, therapy_id])
   @@index([therapist_id])
   @@index([therapy_id])
 }

@@ -51,7 +51,11 @@ export class PrismaServicePackageRepository
     return this.prisma.therapistService
       .upsert({
         where: {
-          therapist_service_id: service.id!,
+          therapist_id_package_id_therapy_id: {
+            package_id: service.package.id!,
+            therapist_id: service.therapistId,
+            therapy_id: service.therapyCategoryId,
+          },
         },
         update: {
           price: service.price,
