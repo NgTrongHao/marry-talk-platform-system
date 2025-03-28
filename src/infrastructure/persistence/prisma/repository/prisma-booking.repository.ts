@@ -15,6 +15,7 @@ export class PrismaBookingRepository implements BookingRepository {
       update: {
         status: booking.progressStatus!,
         rating: booking.rating,
+        expires_at: booking.expiresAt!,
       },
       create: {
         booking_id: booking.id,
