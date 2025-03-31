@@ -61,7 +61,7 @@ export class PrismaTherapyCategoryRepository
       });
   }
 
-  approveTherapistType(
+  async approveTherapistType(
     therapistId: string,
     therapyCategoryId: string,
   ): Promise<TherapistType> {
@@ -90,11 +90,19 @@ export class PrismaTherapyCategoryRepository
     therapistId: string,
     categoryId: string,
   ): Promise<void> {
-    await this.prisma.therapistType.delete({
+    await this.prisma.therapistType.update({
       where: {
         therapist_id_therapy_id: {
           therapy_id: categoryId,
           therapist_id: therapistId,
+        },
+      },
+      data: {
+        enabled: false,
+        therapist: {
+          update: {
+            role_enabled: false,
+          },
         },
       },
     });
