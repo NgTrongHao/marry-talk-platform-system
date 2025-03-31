@@ -4,7 +4,7 @@ import { GetTherapistPayoutAccountsUsecase } from './usecase/get-therapist-payou
 import { AddPayoutAccountUseCase } from './usecase/add-payout-account.usecase';
 import { UsecaseHandler } from '../../usecase-handler.service';
 import { RequestTherapistWithdrawUsecase } from './usecase/request-therapist-withdraw.usecase';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { GetWithdrawRequestsByTherapistIdUsecase } from './usecase/get-withdraw-requests-by-therapist-id.usecase';
 import { WithdrawRequestInfoDto } from './dto/withdraw-request-info.dto';
 import { GetPayoutAccountByIdUsecase } from './usecase/get-payout-account-by-id.usecase';
@@ -24,6 +24,10 @@ import { RefundRequestInfoDto } from './dto/refund-request-info.dto';
 import { CreateRefundRequestUsecase } from './usecase/create-refund-request.usecase';
 import { IBookingService } from '../../booking/booking-service.interface';
 import { CompleteRefundPayoutUsecase } from './usecase/complete-refund-payout.usecase';
+import { GetRefundRequestByReportIdUsecase } from './usecase/get-refund-request-by-report-id.usecase';
+import { GetAllRefundRequestsUsecase } from './usecase/get-all-refund-requests.usecase';
+import { CountAllRefundRequestsUsecase } from './usecase/count-all-refund-requests.usecase';
+import { PayoutTransactionInfoDto } from './dto/payout-transaction-info.dto';
 
 @Injectable()
 export class PayoutService implements IPayoutService {
@@ -170,6 +174,7 @@ export class PayoutService implements IPayoutService {
     page: number;
     limit: number;
     status?: string;
+    userId?: string;
   }): Promise<{
     requests: WithdrawRequestInfoDto[];
     page: number;
@@ -288,6 +293,78 @@ export class PayoutService implements IPayoutService {
           refund,
           await this.bookingService.getSessionReportById(refund.reportId),
         );
+      });
+  }
+
+  async getRefundRequestByReportId(
+    reportId: string,
+  ): Promise<RefundRequestInfoDto> {
+    return this.usecaseHandler
+      .execute(GetRefundRequestByReportIdUsecase, reportId)
+      .then(async (refund) => {
+        return new RefundRequestInfoDto(
+          refund,
+          await this.bookingService.getSessionReportById(refund.reportId),
+        );
+      });
+  }
+
+  async getAllRefundRequests(request: {
+    page: number;
+    limit: number;
+    status?: string;
+    userId?: string;
+  }): Promise<{
+    requests: RefundRequestInfoDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const requests = await this.usecaseHandler
+      .execute(GetAllRefundRequestsUsecase, request)
+      .then(
+        async (refunds) =>
+          await Promise.all(
+            refunds.map(async (refund) => {
+              return new RefundRequestInfoDto(
+                refund,
+                await this.bookingService.getSessionReportById(refund.reportId),
+              );
+            }),
+          ),
+      );
+
+    const total = await this.usecaseHandler.execute(
+      CountAllRefundRequestsUsecase,
+      {
+        status: request.status,
+        userId: request.userId,
+      },
+    );
+
+    return {
+      requests,
+      page: request.page,
+      limit: request.limit,
+      total: total,
+      totalPages: Math.ceil(total / request.limit),
+    };
+  }
+
+  async getRefundTransactionByRefundId(
+    refundId: string,
+  ): Promise<PayoutTransactionInfoDto> {
+    return this.usecaseHandler
+      .execute(GetPayoutTransactionByReferenceIdUsecase, {
+        referenceId: refundId,
+        payoutType: TransactionType.REFUND,
+      })
+      .then((transaction) => {
+        if (!transaction) {
+          throw new NotFoundException('Transaction not found');
+        }
+        return new PayoutTransactionInfoDto(transaction);
       });
   }
 }

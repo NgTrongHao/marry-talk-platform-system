@@ -20,6 +20,8 @@ import { BookingServiceModule } from '../booking/booking-service.module';
 import { CreateRefundRequestUsecase } from './service/usecase/create-refund-request.usecase';
 import { GetRefundRequestByReportIdUsecase } from './service/usecase/get-refund-request-by-report-id.usecase';
 import { CompleteRefundPayoutUsecase } from './service/usecase/complete-refund-payout.usecase';
+import { GetAllRefundRequestsUsecase } from './service/usecase/get-all-refund-requests.usecase';
+import { CountAllRefundRequestsUsecase } from './service/usecase/count-all-refund-requests.usecase';
 
 const useCases = [
   AddPayoutAccountUseCase,
@@ -38,6 +40,8 @@ const useCases = [
   CreateRefundRequestUsecase,
   GetRefundRequestByReportIdUsecase,
   CompleteRefundPayoutUsecase,
+  GetAllRefundRequestsUsecase,
+  CountAllRefundRequestsUsecase,
 ];
 
 @Module({

@@ -3,6 +3,7 @@ import { RefundRequestRepository } from '../../../../core/domain/repository/refu
 import { PrismaService } from '../prisma.service';
 import { RefundRequest } from '../../../../core/domain/entity/refund-request.entity';
 import { PrismaRefundRequestMapper } from '../mapper/prisma-refund-request-mapper';
+import { RequestStatus } from '../../../../core/domain/entity/enum/request-status.enum';
 
 @Injectable()
 export class PrismaRefundRequestRepository implements RefundRequestRepository {
@@ -102,5 +103,42 @@ export class PrismaRefundRequestRepository implements RefundRequestRepository {
         }
         return PrismaRefundRequestMapper.toDomain(result);
       });
+  }
+
+  async countAllRefundRequests(
+    status: string | undefined,
+    userId: string | undefined,
+  ): Promise<number> {
+    return this.prisma.refundRequest
+      .count({
+        where: {
+          status: status as RequestStatus,
+          user_id: userId ? userId : undefined,
+        },
+      })
+      .then((result) => result);
+  }
+
+  async getAllRefundRequests(
+    page: number,
+    limit: number,
+    status: string | undefined,
+    userId: string | undefined,
+  ): Promise<RefundRequest[]> {
+    return this.prisma.refundRequest
+      .findMany({
+        where: {
+          status: status ? (status as RequestStatus) : undefined,
+          user_id: userId ?? undefined,
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        orderBy: {
+          updated_at: 'desc',
+        },
+      })
+      .then((results) =>
+        results.map((result) => PrismaRefundRequestMapper.toDomain(result)),
+      );
   }
 }

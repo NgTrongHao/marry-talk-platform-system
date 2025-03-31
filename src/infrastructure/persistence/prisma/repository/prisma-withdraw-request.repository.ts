@@ -133,7 +133,7 @@ export class PrismaWithdrawRequestRepository
     return this.prisma.withdrawRequest
       .findMany({
         where: {
-          status: status as RequestStatus | undefined,
+          status: status as RequestStatus,
         },
         take: limit,
         skip: (page - 1) * limit,

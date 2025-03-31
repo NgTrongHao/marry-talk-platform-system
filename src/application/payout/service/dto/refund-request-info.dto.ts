@@ -9,6 +9,8 @@ export class RefundRequestInfoDto {
   refundTo: string;
   refundAmount: number;
   refundCurrency: string;
+  accountNumber: string;
+  bankCode: string;
   status: RequestStatus;
   createdAt: Date;
   updatedAt: Date;
@@ -24,6 +26,8 @@ export class RefundRequestInfoDto {
     this.refundTo = refundRequest.refundTo;
     this.refundAmount = refundRequest.amount;
     this.refundCurrency = refundRequest.currency;
+    this.accountNumber = refundRequest.accountNumber;
+    this.bankCode = refundRequest.bankCode;
     this.status = refundRequest.status!;
     this.createdAt = refundRequest.createdAt!;
     this.updatedAt = refundRequest.updatedAt!;
