@@ -39,6 +39,8 @@ import { CleanupExpiredSessionsUsecase } from './usecase/cleanup-expired-session
 import { AddMeetingLinkSessionUsecase } from './usecase/add-meeting-link-session.usecase';
 import { GetTherapistReportedBookingsUsecase } from './usecase/get-therapist-reported-bookings.usecase';
 import { CountTherapistReportedBookingsUsecase } from './usecase/count-therapist-reported-bookings.usecase';
+import { ReportedBookingInfoDto } from './dto/reported-booking-info.dto';
+import { GetMinusAmountReportBookingUsecase } from './usecase/get-minus-amount-report-booking.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -538,7 +540,7 @@ export class BookingService implements IBookingService {
     page: number,
     limit: number,
   ): Promise<{
-    bookings: BookingInfoResponseDto[];
+    bookings: ReportedBookingInfoDto[];
     page: number;
     limit: number;
     total: number;
@@ -562,7 +564,7 @@ export class BookingService implements IBookingService {
                 userId: result.therapistId,
               });
 
-              return new BookingInfoResponseDto(
+              return new ReportedBookingInfoDto(
                 result,
                 await this.userService.getUserById({ userId: result.userId }),
                 (await this.userService.getUserByUsername({
@@ -570,6 +572,10 @@ export class BookingService implements IBookingService {
                 })) as TherapistInfoResponseDto,
                 await this.servicePackageManagementService.getTherapistServiceById(
                   result.therapistServiceId,
+                ),
+                await this.useCaseHandler.execute(
+                  GetMinusAmountReportBookingUsecase,
+                  result.id,
                 ),
               );
             }),

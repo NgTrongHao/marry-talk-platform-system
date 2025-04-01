@@ -38,6 +38,7 @@ import { CleanupExpiredSessionsUsecase } from './service/usecase/cleanup-expired
 import { AddMeetingLinkSessionUsecase } from './service/usecase/add-meeting-link-session.usecase';
 import { GetTherapistReportedBookingsUsecase } from './service/usecase/get-therapist-reported-bookings.usecase';
 import { CountTherapistReportedBookingsUsecase } from './service/usecase/count-therapist-reported-bookings.usecase';
+import { GetMinusAmountReportBookingUsecase } from './service/usecase/get-minus-amount-report-booking.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -72,6 +73,7 @@ const useCases = [
   AddMeetingLinkSessionUsecase,
   GetTherapistReportedBookingsUsecase,
   CountTherapistReportedBookingsUsecase,
+  GetMinusAmountReportBookingUsecase,
 ];
 
 @Module({

@@ -50,12 +50,16 @@ export class PrismaTherapistRepository implements TherapistRepository {
 
     if (!user) return null;
 
-    const rating = user.therapistBooking.reduce(
-      (prev, current) => prev + (current.rating ?? 0),
+    const bookings = user.therapistBooking.filter(
+      (booking) => booking.rating !== null,
+    );
+    const totalRatings = bookings.reduce(
+      (sum, booking) => sum + (booking.rating ?? 0),
       0,
     );
+    const avgRating = bookings.length > 0 ? totalRatings / bookings.length : 0;
 
-    return PrismaTherapistMapper.toDomain(user, rating);
+    return PrismaTherapistMapper.toDomain(user, avgRating);
   }
 
   async saveTherapyTypes(types: TherapistType[]): Promise<TherapistType[]> {
@@ -146,12 +150,16 @@ export class PrismaTherapistRepository implements TherapistRepository {
 
     if (!therapist) return null;
 
-    const rating = therapist.therapistBooking.reduce(
-      (prev, current) => prev + (current.rating ?? 0),
+    const bookings = therapist.therapistBooking.filter(
+      (booking) => booking.rating !== null,
+    );
+    const totalRatings = bookings.reduce(
+      (sum, booking) => sum + (booking.rating ?? 0),
       0,
     );
+    const avgRating = bookings.length > 0 ? totalRatings / bookings.length : 0;
 
-    return PrismaTherapistMapper.toDomain(therapist, rating);
+    return PrismaTherapistMapper.toDomain(therapist, avgRating);
   }
 
   async approveTherapistProfile(id: string): Promise<void> {
