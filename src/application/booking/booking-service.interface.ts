@@ -136,4 +136,16 @@ export interface IBookingService {
     sessionId: string,
     meetingLink: string,
   ): Promise<SessionInfoResponseDto>;
+
+  getTherapistReportedBookings(
+    therapistId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    bookings: BookingInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }>;
 }

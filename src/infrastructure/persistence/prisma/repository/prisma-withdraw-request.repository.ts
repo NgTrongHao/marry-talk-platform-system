@@ -137,6 +137,9 @@ export class PrismaWithdrawRequestRepository
         },
         take: limit,
         skip: (page - 1) * limit,
+        orderBy: {
+          updated_at: 'desc',
+        },
       })
       .then((results) =>
         results.map((result) => PrismaWithdrawRequestMapper.toDomain(result)),

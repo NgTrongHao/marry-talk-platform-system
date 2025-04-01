@@ -37,6 +37,8 @@ import { GetTherapySessionByUserIdUsecase } from './usecase/get-therapy-session-
 import { RateBookingUsecase } from './usecase/rate-booking.usecase';
 import { CleanupExpiredSessionsUsecase } from './usecase/cleanup-expired-sessions.usecase';
 import { AddMeetingLinkSessionUsecase } from './usecase/add-meeting-link-session.usecase';
+import { GetTherapistReportedBookingsUsecase } from './usecase/get-therapist-reported-bookings.usecase';
+import { CountTherapistReportedBookingsUsecase } from './usecase/count-therapist-reported-bookings.usecase';
 
 @Injectable()
 export class BookingService implements IBookingService {
@@ -390,6 +392,7 @@ export class BookingService implements IBookingService {
       );
       total = await this.useCaseHandler.execute(CountTherapistBookingsUsecase, {
         therapistId: userId,
+        status: param.status,
       });
     } else {
       bookings = await this.useCaseHandler.execute(GetMemberBookingsUsecase, {
@@ -402,6 +405,7 @@ export class BookingService implements IBookingService {
       });
       total = await this.useCaseHandler.execute(CountMemberBookingsUsecase, {
         memberId: userId,
+        status: param.status,
       });
     }
     return {
@@ -527,5 +531,54 @@ export class BookingService implements IBookingService {
           await this.getBookingById(result.booking.id!),
         );
       });
+  }
+
+  async getTherapistReportedBookings(
+    therapistId: string,
+    page: number,
+    limit: number,
+  ): Promise<{
+    bookings: BookingInfoResponseDto[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  }> {
+    const total = await this.useCaseHandler.execute(
+      CountTherapistReportedBookingsUsecase,
+      therapistId,
+    );
+    return {
+      bookings: await this.useCaseHandler
+        .execute(GetTherapistReportedBookingsUsecase, {
+          userId: therapistId,
+          page,
+          limit,
+        })
+        .then(async (results) => {
+          return Promise.all(
+            results.map(async (result) => {
+              const therapist = await this.userService.getUserById({
+                userId: result.therapistId,
+              });
+
+              return new BookingInfoResponseDto(
+                result,
+                await this.userService.getUserById({ userId: result.userId }),
+                (await this.userService.getUserByUsername({
+                  username: therapist.username,
+                })) as TherapistInfoResponseDto,
+                await this.servicePackageManagementService.getTherapistServiceById(
+                  result.therapistServiceId,
+                ),
+              );
+            }),
+          );
+        }),
+      limit,
+      page,
+      total,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 }

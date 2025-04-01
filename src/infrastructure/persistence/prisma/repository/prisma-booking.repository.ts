@@ -3,7 +3,7 @@ import { BookingRepository } from '../../../../core/domain/repository/booking.re
 import { Booking } from '../../../../core/domain/entity/booking.entity';
 import { PrismaService } from '../prisma.service';
 import { PrismaBookingMapper } from '../mapper/prisma-booking-mapper';
-import { ProgressStatus } from '@prisma/client';
+import { ProgressStatus, RequestStatus } from '@prisma/client';
 
 @Injectable()
 export class PrismaBookingRepository implements BookingRepository {
@@ -132,6 +132,7 @@ export class PrismaBookingRepository implements BookingRepository {
     from: Date | undefined,
     to: Date | undefined,
   ): Promise<number> {
+    console.info('status', status);
     return this.prisma.booking.count({
       where: {
         therapist_id: therapistId,
@@ -176,5 +177,59 @@ export class PrismaBookingRepository implements BookingRepository {
       .then((bookings) =>
         bookings.map((booking) => PrismaBookingMapper.toDomain(booking)),
       );
+  }
+
+  async getReportedBookings(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<Booking[]> {
+    return this.prisma.booking
+      .findMany({
+        where: {
+          therapist_id: userId,
+          session: {
+            some: {
+              report: {
+                some: {
+                  status: RequestStatus.APPROVED,
+                },
+              },
+            },
+          },
+        },
+        take: limit,
+        skip: (page - 1) * limit,
+        include: {
+          therapistService: {
+            include: {
+              package: true,
+            },
+          },
+        },
+        orderBy: {
+          updated_at: 'desc',
+        },
+      })
+      .then((bookings) =>
+        bookings.map((booking) => PrismaBookingMapper.toDomain(booking)),
+      );
+  }
+
+  countTherapistReportedBookings(therapistId: string): Promise<number> {
+    return this.prisma.booking.count({
+      where: {
+        therapist_id: therapistId,
+        session: {
+          some: {
+            report: {
+              some: {
+                status: RequestStatus.APPROVED,
+              },
+            },
+          },
+        },
+      },
+    });
   }
 }

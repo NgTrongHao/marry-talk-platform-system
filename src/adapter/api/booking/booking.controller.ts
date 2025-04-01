@@ -130,6 +130,25 @@ export class BookingController {
       .then((result) => new BaseResponseDto(200, result));
   }
 
+  @Get('get-reported-bookings/:therapistId')
+  @ApiOperation({
+    summary: 'Get Reported Bookings REST API',
+    description:
+      'Get Reported Bookings REST API is used to get reported bookings.',
+  })
+  @ApiQuery({ name: 'page', required: true, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: true, type: Number, example: 10 })
+  @ApiResponse({ status: 200, description: 'Success' })
+  async getReportedBookings(
+    @Param('therapistId') therapistId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return await this.bookingService
+      .getTherapistReportedBookings(therapistId, page, limit)
+      .then((result) => new BaseResponseDto(200, result));
+  }
+
   @Patch('rate-booking/:bookingId')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()

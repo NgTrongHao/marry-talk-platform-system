@@ -36,6 +36,8 @@ import { GetTherapySessionByUserIdUsecase } from './service/usecase/get-therapy-
 import { RateBookingUsecase } from './service/usecase/rate-booking.usecase';
 import { CleanupExpiredSessionsUsecase } from './service/usecase/cleanup-expired-sessions.usecase';
 import { AddMeetingLinkSessionUsecase } from './service/usecase/add-meeting-link-session.usecase';
+import { GetTherapistReportedBookingsUsecase } from './service/usecase/get-therapist-reported-bookings.usecase';
+import { CountTherapistReportedBookingsUsecase } from './service/usecase/count-therapist-reported-bookings.usecase';
 
 const useCases = [
   CreateBookingUsecase,
@@ -68,6 +70,8 @@ const useCases = [
   RateBookingUsecase,
   CleanupExpiredSessionsUsecase,
   AddMeetingLinkSessionUsecase,
+  GetTherapistReportedBookingsUsecase,
+  CountTherapistReportedBookingsUsecase,
 ];
 
 @Module({

@@ -39,4 +39,12 @@ export interface BookingRepository {
   ): Promise<number>;
 
   findAllExpiredPendingBookings(): Promise<Booking[]>;
+
+  getReportedBookings(
+    userId: string,
+    page: number,
+    limit: number,
+  ): Promise<Booking[]>;
+
+  countTherapistReportedBookings(therapistId: string): Promise<number>;
 }
