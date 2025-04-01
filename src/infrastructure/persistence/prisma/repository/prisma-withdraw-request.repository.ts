@@ -138,7 +138,7 @@ export class PrismaWithdrawRequestRepository
         take: limit,
         skip: (page - 1) * limit,
         orderBy: {
-          updated_at: 'desc',
+          created_at: 'desc',
         },
       })
       .then((results) =>
