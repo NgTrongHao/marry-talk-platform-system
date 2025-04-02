@@ -75,22 +75,22 @@ export class PrismaUserRepository implements UserRepository {
     toDate: Date | undefined,
     role: Role | undefined,
   ): Promise<number> {
-    const startOfMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      1,
-    );
-    const endOfMonth = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth() + 1,
-      0,
-    );
+    // const startOfMonth = new Date(
+    //   new Date().getFullYear(),
+    //   new Date().getMonth(),
+    //   1,
+    // );
+    // const endOfMonth = new Date(
+    //   new Date().getFullYear(),
+    //   new Date().getMonth() + 1,
+    //   0,
+    // );
 
     return this.prisma.user.count({
       where: {
         created_at: {
-          gte: fromDate ?? startOfMonth,
-          lte: toDate ?? endOfMonth,
+          gte: fromDate,
+          lte: toDate,
         },
         role: role ?? undefined,
       },
