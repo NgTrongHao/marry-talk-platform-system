@@ -32,12 +32,9 @@ export class PrismaTherapistRepository implements TherapistRepository {
     });
 
     // get rating by therapist bookings
-    const rating = savedUser.therapistBooking.reduce(
-      (prev, current) => prev + (current.rating ?? 0),
-      0,
-    );
+    const avgRating = this.calculateAverageRating(savedUser.therapistBooking);
 
-    return PrismaTherapistMapper.toDomain(savedUser, rating);
+    return PrismaTherapistMapper.toDomain(savedUser, avgRating);
   }
 
   async getTherapistProfileByUsername(
@@ -50,14 +47,7 @@ export class PrismaTherapistRepository implements TherapistRepository {
 
     if (!user) return null;
 
-    const bookings = user.therapistBooking.filter(
-      (booking) => booking.rating !== null,
-    );
-    const totalRatings = bookings.reduce(
-      (sum, booking) => sum + (booking.rating ?? 0),
-      0,
-    );
-    const avgRating = bookings.length > 0 ? totalRatings / bookings.length : 0;
+    const avgRating = this.calculateAverageRating(user.therapistBooking);
 
     return PrismaTherapistMapper.toDomain(user, avgRating);
   }
@@ -112,12 +102,9 @@ export class PrismaTherapistRepository implements TherapistRepository {
     });
 
     return therapists.map((therapist) => {
-      const rating = therapist.therapistBooking.reduce(
-        (prev, current) => prev + (current.rating ?? 0),
-        0,
-      );
+      const avgRating = this.calculateAverageRating(therapist.therapistBooking);
       return {
-        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapist: PrismaTherapistMapper.toDomain(therapist, avgRating),
         therapistTypes: therapist.therapistType.map((type) =>
           TherapistType.build({
             therapistId: type.therapist_id,
@@ -239,12 +226,9 @@ export class PrismaTherapistRepository implements TherapistRepository {
       include: { therapistType: true, therapistBooking: true },
     });
     return therapists.map((therapist) => {
-      const rating = therapist.therapistBooking.reduce(
-        (prev, current) => prev + (current.rating ?? 0),
-        0,
-      );
+      const avgRating = this.calculateAverageRating(therapist.therapistBooking);
       return {
-        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapist: PrismaTherapistMapper.toDomain(therapist, avgRating),
         therapistTypes: therapist.therapistType.map((type) =>
           TherapistType.build({
             therapistId: type.therapist_id,
@@ -312,12 +296,9 @@ export class PrismaTherapistRepository implements TherapistRepository {
       },
     });
     return therapists.map((therapist) => {
-      const rating = therapist.therapistBooking.reduce(
-        (prev, current) => prev + (current.rating ?? 0),
-        0,
-      );
+      const avgRating = this.calculateAverageRating(therapist.therapistBooking);
       return {
-        therapist: PrismaTherapistMapper.toDomain(therapist, rating),
+        therapist: PrismaTherapistMapper.toDomain(therapist, avgRating),
         therapistTypes: therapist.therapistType.map((type) =>
           TherapistType.build({
             therapistId: type.therapist_id,
@@ -460,5 +441,16 @@ export class PrismaTherapistRepository implements TherapistRepository {
           ? PrismaTherapistMapper.toTherapistPayoutAccountDomain(result)
           : null,
       );
+  }
+
+  private calculateAverageRating(
+    bookings: { rating: number | null }[],
+  ): number {
+    const validRatings = bookings.filter((booking) => booking.rating !== null);
+    const totalRatings = validRatings.reduce(
+      (sum, booking) => sum + (booking.rating ?? 0),
+      0,
+    );
+    return validRatings.length > 0 ? totalRatings / validRatings.length : 0;
   }
 }
